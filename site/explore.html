@@ -161,7 +161,7 @@
 
   <!-- Section: Live Paired Tokens -->
   <section class="block reveal-item" style="padding-top: 2rem;" aria-labelledby="tokens-title">
-    <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem;">
       <div>
         <p class="eyebrow" style="margin-bottom: 0.5rem;">Network State</p>
         <h2 id="tokens-title" style="margin: 0; font-size: clamp(1.8rem, 3.5vw, 2.5rem); font-weight: 500;">
@@ -169,6 +169,13 @@
         </h2>
       </div>
       <a href="pair.html" class="button-primary">Pair New Token &rarr;</a>
+    </div>
+
+    <!-- Filter Tabs for Launchpads -->
+    <div class="filter-tabs" id="explore-filter-tabs">
+      <button type="button" class="filter-tab active" data-filter="all">All Launchpads</button>
+      <button type="button" class="filter-tab" data-filter="coinbarrel">Coinbarrel</button>
+      <button type="button" class="filter-tab" data-filter="argus">Argus World</button>
     </div>
 
     <div class="pairings-gallery" id="pairings-container">
@@ -182,7 +189,7 @@
 <footer>
   <div class="wrap">
     <span>PerpArc runs on Arc mainnet, chain id 5042.</span>
-    <span>Tokens launch on Coinbarrel.</span>
+    <span>Tokens launch on Coinbarrel &amp; Argus World.</span>
   </div>
 </footer>
 
@@ -311,21 +318,42 @@
 
   // Fetch Live Pairings
   const container = document.getElementById("pairings-container");
-  async function loadPairings() {
-    try {
-      const res = await fetch("/api/pairings");
-      const list = await res.json();
-      if (!Array.isArray(list) || list.length === 0) {
-        container.innerHTML = `<div style="color: var(--bone-dim); font-size: 0.95rem; grid-column: 1/-1;">No tokens paired yet. Be the first to pair on Coinbarrel!</div>`;
-        return;
-      }
+  let allPairings = [];
+  let currentFilter = "all";
 
-      container.innerHTML = list.map(item => `
+  const filterTabs = document.querySelectorAll("#explore-filter-tabs .filter-tab");
+  filterTabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      filterTabs.forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+      currentFilter = tab.dataset.filter;
+      renderFilteredPairings();
+    });
+  });
+
+  function renderFilteredPairings() {
+    let filtered = allPairings;
+    if (currentFilter === "coinbarrel") {
+      filtered = allPairings.filter(p => !p.launchpad || p.launchpad === "coinbarrel");
+    } else if (currentFilter === "argus") {
+      filtered = allPairings.filter(p => p.launchpad === "argus");
+    }
+
+    if (filtered.length === 0) {
+      container.innerHTML = `<div style="color: var(--bone-dim); font-size: 0.95rem; grid-column: 1/-1;">No tokens paired yet for this launchpad. Be the first to pair on Coinbarrel or Argus!</div>`;
+      return;
+    }
+
+    container.innerHTML = filtered.map(item => {
+      const lp = item.launchpad === "argus" ? "argus" : "coinbarrel";
+      const lpName = item.launchpad === "argus" ? "Argus World" : "Coinbarrel";
+      return `
         <div class="pairing-item spotlight-card">
           <div class="pairing-head">
             <div class="pairing-token">
               <span class="token-badge-icon" style="width:28px; height:28px; font-size:0.75rem;">$</span>
               <span>${escapeHtml(item.tokenSymbol || "TOKEN")}</span>
+              <span class="launchpad-badge ${lp}" style="margin-left: 6px;">${lpName}</span>
             </div>
             <div style="display:flex; gap:0.5rem;">
               <span class="pairing-pill ${item.isLong ? '' : 'short'}">${item.isLong ? 'LONG' : 'SHORT'}</span>
@@ -339,7 +367,16 @@
             Deposit: ${escapeHtml(item.depositAddress || "0x...")}
           </div>
         </div>
-      `).join("");
+      `;
+    }).join("");
+  }
+
+  async function loadPairings() {
+    try {
+      const res = await fetch("/api/pairings");
+      allPairings = await res.json();
+      if (!Array.isArray(allPairings)) allPairings = [];
+      renderFilteredPairings();
     } catch (e) {
       container.innerHTML = `<div style="color: var(--rose);">Could not load pairings.</div>`;
     }

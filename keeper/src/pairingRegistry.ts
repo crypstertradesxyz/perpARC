@@ -16,6 +16,7 @@ import { config } from "./config.js";
 export interface Pairing {
   tokenAddress: Address;
   tokenSymbol: string;
+  launchpad?: "coinbarrel" | "argus";
   asset: string;
   isLong: boolean;
   leverage: number;

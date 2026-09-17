@@ -39,20 +39,25 @@ async function pollOnce(stateStore: KeeperStateStore): Promise<void> {
     }
 
     try {
-      const claimResult = await tryClaimArgusFees(account, pairing.tokenAddress);
-      if (claimResult.outcome === "claimed") {
-        console.log(`[keeper] claimed Argus fees for ${pairing.tokenSymbol} (${pairing.tokenAddress})`);
+      const launchpad = pairing.launchpad || "coinbarrel";
+      if (launchpad === "argus" || !pairing.launchpad) {
+        const claimResult = await tryClaimArgusFees(account, pairing.tokenAddress);
+        if (claimResult.outcome === "claimed") {
+          console.log(`[keeper] claimed Argus fees for ${pairing.tokenSymbol} (${pairing.tokenAddress})`);
+        } else if (claimResult.outcome === "reverted") {
+          console.log(`[keeper] Argus claim reverted for ${pairing.tokenSymbol}: ${claimResult.reason}`);
+        }
       }
 
       const sweepResult = await sweepToken(account, pairing.tokenAddress, stateStore);
       if (sweepResult.swept) {
         console.log(
-          `[keeper] swept ${pairing.tokenSymbol}: $${sweepResult.buybackAmountUsdc} -> buyback, ` +
+          `[keeper] swept ${pairing.tokenSymbol} [${launchpad}]: $${sweepResult.buybackAmountUsdc} -> buyback, ` +
             `$${sweepResult.positionAmountUsdc} -> ${pairing.asset} ${pairing.isLong ? "long" : "short"} ${pairing.leverage}x`
         );
       } else {
         console.log(
-          `[keeper] ${pairing.tokenSymbol}: $${sweepResult.balanceUsdc.toFixed(2)} pending (below $${config.sweepMinUsdc} threshold)`
+          `[keeper] ${pairing.tokenSymbol} [${launchpad}]: $${sweepResult.balanceUsdc.toFixed(2)} pending (below $${config.sweepMinUsdc} threshold)`
         );
       }
     } catch (err) {

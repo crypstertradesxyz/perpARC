@@ -32,7 +32,7 @@
     <p class="eyebrow drop-in drop-d1">Pairing Studio</p>
     <h1 class="drop-in drop-d2">Get your PerpArc wallet.</h1>
     <p class="sub-lede drop-in drop-d3">
-      Configure your target Hyperliquid market and leverage multiple. Your deterministic deposit address is generated immediately &mdash; set it as your Coinbarrel revenue controller at launch.
+      Configure your target Hyperliquid market and leverage multiple. Your deterministic deposit address is generated immediately &mdash; set it as your Coinbarrel revenue controller or Argus fee claim destination at launch.
     </p>
   </section>
 
@@ -40,7 +40,7 @@
     <div class="wizard-progress">
       <button class="progress-step active" id="prog-1" type="button">
         <span class="step-num">1</span>
-        <span>Token Contract</span>
+        <span>Token &amp; Launchpad</span>
       </button>
       <div class="progress-line" id="line-1"></div>
       <button class="progress-step" id="prog-2" type="button">
@@ -56,11 +56,32 @@
 
     <div class="wizard-viewport">
       <div class="wizard-track" id="wizard-track">
-        <!-- Slide 1: Token Lookup -->
+        <!-- Slide 1: Token Lookup & Launchpad -->
         <div class="wizard-slide" id="slide-1">
           <div class="slide-header">
             <h2>Identify your token on Arc</h2>
-            <p>Paste the contract address of the token you are deploying or already launched on Arc.</p>
+            <p>Select your target Arc launchpad and enter your token contract address.</p>
+          </div>
+
+          <div class="form-group">
+            <label>Arc Launchpad Protocol</label>
+            <span class="label-desc">Choose which launchpad your token is deploying through.</span>
+            <div class="launchpad-grid">
+              <div class="launchpad-card selected" id="lp-coinbarrel" data-lp="coinbarrel">
+                <div class="launchpad-card-header">
+                  <div class="launchpad-icon coinbarrel">CB</div>
+                  <span class="launchpad-card-title">Coinbarrel</span>
+                </div>
+                <span class="launchpad-card-desc">Direct revenue controller. Trading fees stream directly as USDC on every swap.</span>
+              </div>
+              <div class="launchpad-card" id="lp-argus" data-lp="argus">
+                <div class="launchpad-card-header">
+                  <div class="launchpad-icon argus">AW</div>
+                  <span class="launchpad-card-title">Argus World</span>
+                </div>
+                <span class="launchpad-card-desc">Uniswap v4 bonding curve. Dedicated RevenueSplitter hook with autonomous keeper claiming.</span>
+              </div>
+            </div>
           </div>
 
           <div class="form-group">
@@ -214,8 +235,8 @@
             <div id="copy-status" style="font-size: 0.85rem; color: var(--sand); margin-top: 0.5rem; display: none;">Copied to clipboard!</div>
           </div>
 
-          <div class="launch-guide">
-            <h3><span style="color:var(--sodium);">&#x2714;</span> Launching with this on Coinbarrel</h3>
+          <div class="launch-guide" id="guide-coinbarrel">
+            <h3><span style="color:var(--sodium);">&#x2714;</span> Launching on Coinbarrel</h3>
             <ol class="launch-steps">
               <li>
                 <strong>Go to Coinbarrel:</strong> Open the Coinbarrel token launch console on Arc.
@@ -227,7 +248,25 @@
                 <strong>Launch your token:</strong> Once created, Coinbarrel forwards trading fees directly to this address.
               </li>
               <li>
-                <strong>Autonomous Execution:</strong> The PerpArc keeper detects incoming USDC on Arc, claims &amp; bridges 80% to Hyperliquid via CCTP, and maintains your selected <span id="summary-pos-tag" style="color:var(--cobalt); font-weight:600;">ETH Long 5x</span> position.
+                <strong>Autonomous Execution:</strong> The PerpArc keeper detects incoming USDC on Arc, claims &amp; bridges 80% to Hyperliquid via CCTP, and maintains your selected <span class="summary-pos-tag" style="color:var(--cobalt); font-weight:600;">ETH Long 5x</span> position.
+              </li>
+            </ol>
+          </div>
+
+          <div class="launch-guide" id="guide-argus" style="display: none;">
+            <h3><span style="color:#6ea8fe;">&#x2714;</span> Launching on Argus World</h3>
+            <ol class="launch-steps">
+              <li>
+                <strong>Go to Argus World:</strong> Open <a href="https://argus.world" target="_blank" rel="noopener" style="color:var(--sand); text-decoration: underline;">argus.world</a> token launch portal on Arc.
+              </li>
+              <li>
+                <strong>Configure RevenueSplitter:</strong> In the Argus launch parameters, allocate to <em>creatorFunds</em> and set your generated PerpArc address as the recipient wallet.
+              </li>
+              <li>
+                <strong>Launch on Uniswap v4:</strong> Argus deploys your v4 pool with fee hook and links the RevenueSplitter contract.
+              </li>
+              <li>
+                <strong>Autonomous Keeper Automation:</strong> The PerpArc keeper polls your Argus RevenueSplitter contract, claims accrued USDC, bridges 80% to Hyperliquid via CCTP, and maintains your <span class="summary-pos-tag" style="color:var(--cobalt); font-weight:600;">ETH Long 5x</span> position.
               </li>
             </ol>
           </div>
@@ -245,13 +284,14 @@
 <footer>
   <div class="wrap">
     <span>PerpArc runs on Arc mainnet, chain id 5042.</span>
-    <span>Tokens launch on Coinbarrel.</span>
+    <span>Tokens launch on Coinbarrel &amp; Argus World.</span>
   </div>
 </footer>
 
 <script>
 (() => {
   let currentStep = 1;
+  let selectedLaunchpad = "coinbarrel";
   let selectedAsset = "ETH";
   let selectedDir = "long";
   let selectedLeverage = 5;
@@ -261,6 +301,15 @@
   const prog1 = document.getElementById("prog-1");
   const prog2 = document.getElementById("prog-2");
   const prog3 = document.getElementById("prog-3");
+
+  const launchpadCards = document.querySelectorAll(".launchpad-card");
+  launchpadCards.forEach(card => {
+    card.addEventListener("click", () => {
+      launchpadCards.forEach(c => c.classList.remove("selected"));
+      card.classList.add("selected");
+      selectedLaunchpad = card.dataset.lp;
+    });
+  });
 
   const tokenInput = document.getElementById("token-address");
   const symbolInput = document.getElementById("token-symbol");
@@ -468,6 +517,7 @@
       const payload = {
         tokenAddress: tokenInput.value.trim(),
         tokenSymbol: symbolInput.value.trim() || tokenInfo.symbol || "TOKEN",
+        launchpad: selectedLaunchpad,
         asset: selectedAsset,
         direction: selectedDir,
         leverage: selectedLeverage,
@@ -482,7 +532,18 @@
 
       const data = await res.json();
       if (res.ok && data.depositAddress) {
-        summaryPosTag.textContent = `${selectedAsset} ${selectedDir.toUpperCase()} ${selectedLeverage}x`;
+        document.querySelectorAll(".summary-pos-tag").forEach(el => {
+          el.textContent = `${selectedAsset} ${selectedDir.toUpperCase()} ${selectedLeverage}x`;
+        });
+        const guideCb = document.getElementById("guide-coinbarrel");
+        const guideArgus = document.getElementById("guide-argus");
+        if (selectedLaunchpad === "argus") {
+          if (guideCb) guideCb.style.display = "none";
+          if (guideArgus) guideArgus.style.display = "block";
+        } else {
+          if (guideCb) guideCb.style.display = "block";
+          if (guideArgus) guideArgus.style.display = "none";
+        }
         goToStep(3);
         scrambleRevealAddress(data.depositAddress);
       } else {
@@ -540,7 +601,18 @@
   updateMetrics();
 
   // Pre-fill from URL query param if present (e.g. from Hero quick-pair)
-  const urlAddr = new URLSearchParams(window.location.search).get("address");
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlAddr = urlParams.get("address");
+  const urlLp = urlParams.get("launchpad");
+
+  if (urlLp && (urlLp === "argus" || urlLp === "coinbarrel")) {
+    selectedLaunchpad = urlLp;
+    launchpadCards.forEach(c => {
+      if (c.dataset.lp === urlLp) c.classList.add("selected");
+      else c.classList.remove("selected");
+    });
+  }
+
   if (urlAddr && tokenInput) {
     tokenInput.value = urlAddr;
     tokenInput.dispatchEvent(new Event("input"));

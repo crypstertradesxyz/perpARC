@@ -37,11 +37,11 @@
       <div class="hero-copy" style="padding-top: 0;">
         <p class="eyebrow drop-in drop-d1">Built on Arc &middot; 5042</p>
         <h1 id="hero-title" class="drop-in drop-d2" style="font-size: clamp(2.5rem, 5.5vw, 4.75rem); line-height: 1.04; margin-bottom: 1.2rem;">
-          Launch on Coinbarrel.<br>
+          Coinbarrel or Argus.<br>
           <span style="color:var(--sodium);">PERP the fees.</span>
         </h1>
         <p class="lede drop-in drop-d3" style="max-width: 44ch; font-size: 1.15rem; margin-bottom: 0;">
-          One token. Every trade. A keeper redirects your pool fees into autonomous buybacks and leveraged Hyperliquid perpetuals.
+          One token. Every trade. A keeper redirects your launchpad fees into autonomous buybacks and leveraged Hyperliquid perpetuals.
         </p>
 
         <!-- Live Platform Row (sendmoney style) -->
@@ -57,6 +57,11 @@
             <span class="badge-live">Live</span>
           </div>
           <div class="platform-pill">
+            <span class="dot" style="width:5px; height:5px; background:#8bb9fe;"></span>
+            <span>Argus World</span>
+            <span class="badge-live">Live</span>
+          </div>
+          <div class="platform-pill">
             <span class="dot" style="width:5px; height:5px; background:var(--sodium);"></span>
             <span>Circle CCTP</span>
             <span class="badge-live">Live</span>
@@ -69,7 +74,11 @@
         </div>
 
         <!-- Hero Instant Launch / Pair Bar -->
-        <form class="hero-launch-bar drop-in drop-d4" id="hero-quick-pair-form" onsubmit="event.preventDefault(); const addr = document.getElementById('hero-token-input').value.trim(); window.location.href = addr ? 'pair.html?address=' + encodeURIComponent(addr) : 'pair.html';">
+        <div class="quick-launchpad-switch drop-in drop-d4">
+          <button type="button" class="quick-lp-btn active coinbarrel" id="hero-lp-cb">Coinbarrel</button>
+          <button type="button" class="quick-lp-btn" id="hero-lp-argus">Argus World</button>
+        </div>
+        <form class="hero-launch-bar drop-in drop-d4" id="hero-quick-pair-form">
           <input 
             type="text" 
             id="hero-token-input" 
@@ -111,13 +120,13 @@
 
         <div class="preview-top-badge">
           <span><span class="radar-dot" style="margin-right: 6px;"></span>Product Preview</span>
-          <span>Verified Coinbarrel Mechanism</span>
+          <span>Verified Coinbarrel &amp; Argus Support</span>
         </div>
 
         <div class="preview-token-row">
           <div class="token-badge-icon" style="width: 44px; height: 44px; font-size: 1.1rem; border-radius: 10px;">$</div>
           <div>
-            <div style="font-weight: 600; color: var(--bone); font-size: 1.15rem;">$GADGET &middot; Coinbarrel Pool</div>
+            <div style="font-weight: 600; color: var(--bone); font-size: 1.15rem;">$GADGET &middot; Arc Pool</div>
             <div style="font-family: var(--mono); font-size: 0.82rem; color: var(--bone-dim);">Arc Mainnet &middot; 24h Vol: $142,500 USDC</div>
           </div>
         </div>
@@ -141,11 +150,11 @@
             </div>
           </div>
           <div class="preview-split-box">
-            <div style="font-family: var(--mono); font-size: 1.1rem; font-weight: 600; color: var(--sodium);">
+            <div style="font-family: var(--mono); font-size: 1.1rem; font-weight: 600; color: var(--sand);">
               285 USDC (20%)
             </div>
             <div style="font-size: 0.78rem; color: var(--bone-dim); margin-top: 0.25rem;">
-              &rarr; Token Buyback Vault
+              &rarr; Automated Buyback
             </div>
           </div>
         </div>
@@ -157,11 +166,13 @@
     <div class="marquee-track">
       <div class="marquee-item"><span class="dot"></span><span>Arc Mainnet <strong style="color:var(--bone);">5042</strong></span></div>
       <div class="marquee-item"><span class="dot"></span><span>Coinbarrel <strong style="color:var(--sand);">Revenue Hook</strong></span></div>
+      <div class="marquee-item"><span class="dot"></span><span>Argus World <strong style="color:#8bb9fe;">v4 RevenueSplitter</strong></span></div>
       <div class="marquee-item"><span class="dot"></span><span>Circle CCTP v2 <span class="highlight">Direct Arc &rarr; Arbitrum</span></span></div>
       <div class="marquee-item"><span class="dot"></span><span>Hyperliquid L1 <strong style="color:var(--cobalt);">Isolated Margin</strong></span></div>
       <div class="marquee-item"><span class="dot"></span><span>Autonomous Keeper <span class="highlight">Zero Human Intervention</span></span></div>
       <div class="marquee-item"><span class="dot"></span><span>Arc Mainnet <strong style="color:var(--bone);">5042</strong></span></div>
       <div class="marquee-item"><span class="dot"></span><span>Coinbarrel <strong style="color:var(--sand);">Revenue Hook</strong></span></div>
+      <div class="marquee-item"><span class="dot"></span><span>Argus World <strong style="color:#8bb9fe;">v4 RevenueSplitter</strong></span></div>
       <div class="marquee-item"><span class="dot"></span><span>Circle CCTP v2 <span class="highlight">Direct Arc &rarr; Arbitrum</span></span></div>
       <div class="marquee-item"><span class="dot"></span><span>Hyperliquid L1 <strong style="color:var(--cobalt);">Isolated Margin</strong></span></div>
       <div class="marquee-item"><span class="dot"></span><span>Autonomous Keeper <span class="highlight">Zero Human Intervention</span></span></div>
@@ -203,20 +214,20 @@
       <p class="eyebrow">How it works</p>
       <h2 id="how-title">Three steps, then it runs itself.</h2>
       <p class="intro">
-        On Coinbarrel, whoever launches a token decides where its fees go. You decide to send them to a position.
+        On Coinbarrel or Argus, whoever launches a token decides where its fees go. You decide to send them to a position.
       </p>
       <ol class="steps">
         <li>
           <h3>Get your wallet</h3>
-          <p>Pick a Hyperliquid market, long or short, and a leverage multiple. PerpArc generates a wallet for that position.</p>
+          <p>Pick your launchpad (Coinbarrel or Argus), a Hyperliquid market, and a leverage multiple. PerpArc derives an isolated wallet for that position.</p>
         </li>
         <li>
           <h3>Launch with it</h3>
-          <p>When you launch on Coinbarrel, set that wallet as your revenue controller. That choice is made once, at launch.</p>
+          <p>On Coinbarrel, set that wallet as your revenue controller. On Argus World, assign it as your RevenueSplitter payout destination. That choice is made at launch.</p>
         </li>
         <li>
           <h3>The keeper takes over</h3>
-          <p>As fees arrive, it splits them, funds your position, and holds it at your leverage.</p>
+          <p>As trading fees accumulate, the keeper claims and sweeps them, bridges to Hyperliquid via CCTP, and compounds your position.</p>
         </li>
       </ol>
     </div>
@@ -235,8 +246,7 @@
         <div class="split-scale" aria-hidden="true"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
       </div>
       <p class="note">
-        Coinbarrel charges its own flat 1% on every trade, separately. The split above applies to the fee you set on
-        top of that, the part that flows to your PerpArc wallet.
+        Coinbarrel and Argus charge their own native platform protocol fees separately. The split above applies to your creator fee share, the portion that flows to your PerpArc wallet.
       </p>
     </div>
   </section>
@@ -250,7 +260,7 @@
           Simulate Your Token's Exposure
         </h2>
         <p style="margin: 0; color: var(--bone-dim); font-size: 1.05rem;">
-          Model how daily trading volume compounds perpetual margin and fuels automated buybacks over 7 to 90 days.
+          Model how daily trading volume on Coinbarrel or Argus compounds perpetual margin and fuels automated buybacks over 7 to 90 days.
         </p>
       </div>
       <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
@@ -270,8 +280,8 @@
           <p>A liquidated position reopens at the same market, side, and leverage. The lost margin isn't recovered.</p>
         </li>
         <li>
-          <strong>Your controller choice is hard to undo.</strong>
-          <p>On Coinbarrel, only its platform admin can change a token's revenue controller after launch. We checked this on-chain.</p>
+          <strong>Fee routing configuration is fixed.</strong>
+          <p>On Coinbarrel, revenue controllers can only be changed by platform admins. On Argus, RevenueSplitter creator parameters are set at pool launch.</p>
         </li>
         <li>
           <strong>The keeper holds the wallet.</strong>
@@ -304,7 +314,7 @@
 <footer>
   <div class="wrap">
     <span>PerpArc runs on Arc mainnet, chain id 5042.</span>
-    <span>Tokens launch on Coinbarrel.</span>
+    <span>Tokens launch on Coinbarrel &amp; Argus World.</span>
   </div>
 </footer>
 
@@ -773,6 +783,37 @@
   }, { threshold: 0.15 });
 
   document.querySelectorAll(".reveal-item").forEach(el => revealObserver.observe(el));
+
+  // Hero Quick-Pair Launchpad Switcher & Form Handling
+  let heroSelectedLaunchpad = "coinbarrel";
+  const btnLpCb = document.getElementById("hero-lp-cb");
+  const btnLpArgus = document.getElementById("hero-lp-argus");
+  const heroForm = document.getElementById("hero-quick-pair-form");
+  const heroInput = document.getElementById("hero-token-input");
+
+  if (btnLpCb && btnLpArgus) {
+    btnLpCb.addEventListener("click", () => {
+      heroSelectedLaunchpad = "coinbarrel";
+      btnLpCb.className = "quick-lp-btn active coinbarrel";
+      btnLpArgus.className = "quick-lp-btn";
+    });
+    btnLpArgus.addEventListener("click", () => {
+      heroSelectedLaunchpad = "argus";
+      btnLpArgus.className = "quick-lp-btn active argus";
+      btnLpCb.className = "quick-lp-btn";
+    });
+  }
+
+  if (heroForm && heroInput) {
+    heroForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const addr = heroInput.value.trim();
+      const params = new URLSearchParams();
+      if (addr) params.set("address", addr);
+      params.set("launchpad", heroSelectedLaunchpad);
+      window.location.href = `pair.html?${params.toString()}`;
+    });
+  }
 })();
 </script>
 </body>

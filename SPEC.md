@@ -1,10 +1,20 @@
 # PerpArc — Spec
 
-Platform that launches tokens on **Arc** (Circle's USDC-native L1, chain id `5042`, mainnet live 2026-09-16) through the third-party launchpad **Argus** (argus.world), redirects a slice of every launch's Argus creator-fee share to us, and uses it to fund an isolated leveraged position on Hyperliquid per token — the same core model as [[Longshot]] (Robinhood Chain, own launch contracts), adapted for a launchpad we don't own.
+Platform that connects token launches on **Arc** (Circle's USDC-native L1, chain id `5042`) across multiple launchpads—supporting both **Coinbarrel** (`coinbarrel.com`) and **Argus World** (`argus.world`)—redirects a slice of every launch's creator-fee share to an isolated derived deposit account, and uses it to fund an autonomous leveraged position on Hyperliquid per token.
 
-## Launchpad pivot: Argus -> Coinbarrel (2026-09-17)
+## Multi-Launchpad Architecture: Coinbarrel + Argus World (2026-09-17)
 
-Everything below that references Argus is superseded -- PerpArc now integrates with **Coinbarrel** (docs.coinbarrel.com), not Argus. Argus was dropped because its real mainnet contract is unverified on Arc's official explorer and its docs sit behind a human-verification wall, so none of its fee mechanics could actually be confirmed.
+PerpArc provides first-class support for both dominant Arc launchpads:
+
+1. **Coinbarrel (`docs.coinbarrel.com`)**:
+   - Token creators configure their deterministic PerpArc wallet as the `revenueController` / fee recipient directly at launch time.
+   - Swap fees stream as USDC directly into that controller address on every trade.
+   - The PerpArc keeper actively monitors the wallet balance on Arc L1 and sweeps it once the threshold is crossed.
+
+2. **Argus World (`argus.world/docs`)**:
+   - Token creators launch via Argus Portal (`createLaunch`), which creates a Uniswap v4 bonding curve pool with an attached `RevenueSplitter` hook contract.
+   - The creator sets `creatorFunds` allocation and sets their PerpArc wallet as the designated claim/payout recipient.
+   - The PerpArc keeper actively polls `RevenueSplitter.claim(to, quoteAsset)` via `tryClaimArgusFees()` in `keeper/src/argus.ts`, and sweeps all accumulated USDC fees to the bridging pipeline.
 
 ### Coinbarrel verification (on-chain, Arc mainnet)
 

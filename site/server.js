@@ -120,6 +120,9 @@ function validatePairingRequest(body) {
   if (!Number.isInteger(leverage) || leverage < 1 || leverage > MAX_LEVERAGE) {
     errors.push(`leverage must be a whole number between 1 and ${MAX_LEVERAGE}`);
   }
+  if (body.launchpad !== undefined && body.launchpad !== "coinbarrel" && body.launchpad !== "argus") {
+    errors.push('launchpad must be "coinbarrel" or "argus"');
+  }
   if (body.contact !== undefined && typeof body.contact !== "string") errors.push("contact must be a string");
   return errors;
 }
@@ -148,12 +151,14 @@ async function handlePair(req, res) {
 
   const tokenAddress = body.tokenAddress.toLowerCase();
   const depositAddress = deriveDepositAddress(tokenAddress);
+  const launchpad = (body.launchpad === "argus") ? "argus" : "coinbarrel";
 
   const pairings = await loadPairings();
   const alreadyPaired = Boolean(pairings[tokenAddress]);
   const record = {
     tokenAddress,
     tokenSymbol: body.tokenSymbol.trim(),
+    launchpad,
     asset: body.asset.trim().toUpperCase(),
     isLong: body.direction === "long",
     leverage: Number(body.leverage),
