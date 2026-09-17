@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Pair a token — ArcPerp</title>
+<title>Pair a token — PerpArc</title>
 <meta name="description" content="Request a pairing: fund a leveraged Hyperliquid position from your Argus token's own trading fees." />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -143,7 +143,7 @@
 
 <div class="wrap">
   <header class="top">
-    <div class="wordmark"><a href="index.html" style="color:inherit; text-decoration:none;">Arc<span>Perp</span></a></div>
+    <div class="wordmark"><a href="index.html" style="color:inherit; text-decoration:none;">Perp<span>Arc</span></a></div>
     <nav>
       <a href="index.html#how">How it works</a>
       <a href="index.html#split">The split</a>
@@ -157,8 +157,8 @@
   <section class="pair-hero">
     <h1>Pair a token</h1>
     <p>
-      Tell us your token and the position you want. Your ArcPerp deposit wallet is generated instantly &mdash;
-      redirect this token's claimed Argus fees to it, and ArcPerp takes it from there.
+      Tell us your token and the position you want. Your PerpArc deposit wallet is generated instantly &mdash;
+      redirect this token's claimed Argus fees to it, and PerpArc takes it from there.
     </p>
   </section>
 
@@ -215,13 +215,13 @@
       </div>
 
       <div class="submit-row">
-        <button type="submit">Generate my ArcPerp wallet</button>
+        <button type="submit">Generate my PerpArc wallet</button>
         <span class="required-note" id="submit-status"></span>
       </div>
 
       <div id="confirmation">
-        <h2 id="confirmation-heading">Your ArcPerp wallet</h2>
-        <p id="confirmation-intro">Redirect this token's claimed Argus fees here. ArcPerp watches it and funds the position once a balance builds up.</p>
+        <h2 id="confirmation-heading">Your PerpArc wallet</h2>
+        <p id="confirmation-intro">Redirect this token's claimed Argus fees here. PerpArc watches it and funds the position once a balance builds up.</p>
         <p id="confirmation-address" style="font-family: ui-monospace, monospace; font-size: 1.05rem; color: var(--ink); word-break: break-all; background: white; border: 1px solid var(--line); border-radius: 6px; padding: 0.7rem 0.9rem;"></p>
         <button type="button" id="copy-address" style="margin-top:0.8rem; font: inherit; font-size:0.9rem; padding:0.5rem 1rem; border-radius:6px; border:1px solid var(--line); background:white; cursor:pointer;">Copy address</button>
         <p id="confirmation-summary" style="color: var(--ink-soft); font-size: 0.9rem; white-space: pre-line; margin-top: 1rem;"></p>
@@ -231,13 +231,13 @@
     <aside class="side-note">
       <h2>Before you request</h2>
       <ul>
-        <li>Your token needs to already be trading on Argus, on Arc &mdash; ArcPerp doesn't launch it for you.</li>
+        <li>Your token needs to already be trading on Argus, on Arc &mdash; PerpArc doesn't launch it for you.</li>
         <li>Asset, direction, and leverage are fixed once pairing is confirmed. Choose deliberately.</li>
         <li>You keep claiming your own Argus fees yourself; pairing only tells you where to redirect them.</li>
         <li>The address is generated instantly and deterministically from your token's address &mdash; requesting again for the same token returns the same address.</li>
       </ul>
       <p>
-        <strong>Custody:</strong> this address is controlled by ArcPerp's keeper, not by you. Treat it like any
+        <strong>Custody:</strong> this address is controlled by PerpArc's keeper, not by you. Treat it like any
         custodial deposit address until your position is live.
       </p>
     </aside>
@@ -351,10 +351,10 @@
         return;
       }
 
-      confirmationHeading.textContent = result.alreadyPaired ? "Your ArcPerp wallet (already generated)" : "Your ArcPerp wallet";
+      confirmationHeading.textContent = result.alreadyPaired ? "Your PerpArc wallet (already generated)" : "Your PerpArc wallet";
       confirmationIntro.textContent = result.alreadyPaired
         ? "This token was already paired. Here's the same deposit address again -- redirecting fees to it multiple times is harmless."
-        : "Redirect this token's claimed Argus fees here. ArcPerp watches it and funds the position once a balance builds up.";
+        : "Redirect this token's claimed Argus fees here. PerpArc watches it and funds the position once a balance builds up.";
       confirmationAddress.textContent = result.depositAddress;
       confirmationSummary.textContent =
         `Token: ${data.tokenSymbol} (${data.tokenAddress})\n` +

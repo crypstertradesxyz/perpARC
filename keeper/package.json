@@ -1,0 +1,24 @@
+{
+  "name": "perparc-keeper",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Off-chain keeper: watches paired-token deposit addresses on Arc, sweeps 80/20 to position/buyback, bridges position capital toward Hyperliquid via CCTP, and manages each token's isolated leveraged position.",
+  "engines": { "node": ">=24.0.0" },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "test": "tsx --test src/**/*.test.ts"
+  },
+  "dependencies": {
+    "@msgpack/msgpack": "^3.1.3",
+    "dotenv": "^17.4.2",
+    "viem": "^2.55.11"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

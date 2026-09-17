@@ -5,20 +5,20 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { CreateLaunchParams, IArgusPortal, IArgusRevenueSplitter } from "./interfaces/IArgusPortal.sol";
 
-/// @notice One per launched token, deployed by ArcPerpVaultFactory.launch().
+/// @notice One per launched token, deployed by PerpArcVaultFactory.launch().
 /// Its constructor itself calls Argus's Portal.createLaunch(), so this
 /// contract becomes Argus's immutable `creator` for the launch in the same
 /// transaction the token is born in -- it is therefore the only address
 /// that will ever be able to call the Argus RevenueSplitter's claim().
 ///
 /// Adapts Argus's single `creatorFunds` bucket (set to 100% of the creator
-/// share at launch -- see ArcPerpVaultFactory.launch()) to ArcPerp's own
+/// share at launch -- see PerpArcVaultFactory.launch()) to PerpArc's own
 /// 80/20 position-capital/buyback split. See SPEC.md "Fee split (ours, not
 /// Argus's)" for why we don't use Argus's native buybackBurn/dividends/
 /// liquidity buckets. Modeled directly on Longshot's PonsFeeRelay.sol,
 /// which solves the same "adapt a launchpad we don't own" problem for pons
 /// on Robinhood Chain.
-contract ArcPerpRelay {
+contract PerpArcRelay {
     using SafeERC20 for IERC20;
 
     error NotOwner();

@@ -1,11 +1,11 @@
-// ArcPerp site: static file server + automated pairing endpoint.
+// PerpArc site: static file server + automated pairing endpoint.
 //
 // "Automated" means the deposit address is generated synchronously, on
 // request, with no human in the loop -- but the address still has to come
 // from a server-held derivation secret, never the browser (see README.md
 // "Custody model"). This mirrors Longshot's exact pattern
 // (keccak256(secret || pool) -> privateKeyToAccount) with the paired
-// token's own address standing in for "pool", since ArcPerp doesn't deploy
+// token's own address standing in for "pool", since PerpArc doesn't deploy
 // a contract per pairing under this model.
 
 import { createServer } from "node:http";
@@ -74,10 +74,10 @@ function loadOrCreateSecret() {
   }
   const secret = `0x${randomBytes(32).toString("hex")}`;
   writeFile(SECRET_FILE, secret, { mode: 0o600 }).catch((err) =>
-    console.error("[arcperp-site] failed to persist dev secret", err)
+    console.error("[perparc-site] failed to persist dev secret", err)
   );
   console.warn(
-    "[arcperp-site] no PAIRING_DERIVATION_SECRET set -- generated a local dev-only secret at " +
+    "[perparc-site] no PAIRING_DERIVATION_SECRET set -- generated a local dev-only secret at " +
       SECRET_FILE +
       ". This is NOT suitable for any real deployment; see README.md \"Custody model\"."
   );
@@ -249,7 +249,7 @@ function contentType(ext) {
 const server = createServer((req, res) => {
   if (req.method === "POST" && req.url === "/api/pair") {
     handlePair(req, res).catch((err) => {
-      console.error("[arcperp-site] /api/pair failed", err);
+      console.error("[perparc-site] /api/pair failed", err);
       res.writeHead(500, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ errors: ["Internal error"] }));
     });
@@ -257,7 +257,7 @@ const server = createServer((req, res) => {
   }
   if (req.method === "GET" && req.url.startsWith("/api/token")) {
     handleTokenLookup(req, res).catch((err) => {
-      console.error("[arcperp-site] /api/token failed", err);
+      console.error("[perparc-site] /api/token failed", err);
       res.writeHead(500, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ found: false, error: "Internal error" }));
     });
@@ -265,7 +265,7 @@ const server = createServer((req, res) => {
   }
   if (req.method === "GET" && req.url === "/api/pairings") {
     handleListPairings(res).catch((err) => {
-      console.error("[arcperp-site] /api/pairings failed", err);
+      console.error("[perparc-site] /api/pairings failed", err);
       res.writeHead(500);
       res.end("Internal error");
     });
@@ -275,5 +275,5 @@ const server = createServer((req, res) => {
 });
 
 server.listen(PORT, "127.0.0.1", () => {
-  console.log(`[arcperp-site] listening on http://127.0.0.1:${PORT}`);
+  console.log(`[perparc-site] listening on http://127.0.0.1:${PORT}`);
 });

@@ -8,7 +8,7 @@ pragma solidity ^0.8.26;
 /// reference/docs mirror rather than a confirmed 1:1 match for the verified
 /// bytecode at Argus's real mainnet Portal. Re-derive this interface from
 /// Arcscan's verified source for `0xB021Be536808f551b31789422Fd28a6c9c6e97Da`
-/// before any real deploy, and fix this file (and ArcPerpRelay's
+/// before any real deploy, and fix this file (and PerpArcRelay's
 /// constructor, which depends on the exact tuple shape `launches()`
 /// returns) if it disagrees.
 struct CreateLaunchParams {

@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-import { ArcPerpRelay } from "./ArcPerpRelay.sol";
+import { PerpArcRelay } from "./PerpArcRelay.sol";
 import { CreateLaunchParams } from "./interfaces/IArgusPortal.sol";
 
-/// @notice Launches tokens through Argus and wires each into ArcPerp.
+/// @notice Launches tokens through Argus and wires each into PerpArc.
 /// Owner-curates the Hyperliquid asset/leverage allowlist and, in v1, who
 /// may call launch() at all -- see SPEC.md "Design decisions" for why this
 /// isn't fully permissionless yet (Argus's mainnet contracts are one day
 /// old and unverified against Arcscan as of this writing).
-contract ArcPerpVaultFactory {
+contract PerpArcVaultFactory {
     error NotOwner();
     error NotLauncher();
     error AssetNotSupported();
@@ -92,12 +92,12 @@ contract ArcPerpVaultFactory {
         return allRelays.length;
     }
 
-    /// @notice Launches a token through Argus and deploys its ArcPerpRelay
+    /// @notice Launches a token through Argus and deploys its PerpArcRelay
     /// in one transaction. Forces the Argus-side allocation to 100%
     /// creatorFunds regardless of what's passed in `params` -- see
-    /// SPEC.md "Design decisions" for why ArcPerp doesn't use Argus's
+    /// SPEC.md "Design decisions" for why PerpArc doesn't use Argus's
     /// native buybackBurn/dividends/liquidity buckets. `realCreator` is
-    /// attribution only (see ArcPerpRelay.realCreator).
+    /// attribution only (see PerpArcRelay.realCreator).
     function launch(CreateLaunchParams memory params, bytes32 asset, bool isLong, uint8 leverage, address realCreator)
         external
         returns (address token, address relay)
@@ -113,8 +113,8 @@ contract ArcPerpVaultFactory {
         params.dividendsBps = 0;
         params.liquidityBps = 0;
 
-        ArcPerpRelay r =
-            new ArcPerpRelay(owner, portal, params, usdc, buybackWallet, keeper, asset, isLong, leverage, realCreator);
+        PerpArcRelay r =
+            new PerpArcRelay(owner, portal, params, usdc, buybackWallet, keeper, asset, isLong, leverage, realCreator);
         token = r.token();
         relay = address(r);
 

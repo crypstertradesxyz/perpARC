@@ -6,7 +6,7 @@ import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { CreateLaunchParams, IArgusPortal, IArgusRevenueSplitter } from "../../src/interfaces/IArgusPortal.sol";
 
 /// @notice Minimal stand-ins for Argus's Portal/RevenueSplitter, good
-/// enough to exercise ArcPerpRelay/ArcPerpVaultFactory's side of the
+/// enough to exercise PerpArcRelay/PerpArcVaultFactory's side of the
 /// integration. NOT a claim that this matches Argus's real mainnet
 /// behavior -- see SPEC.md "Verification status".
 contract MockUSDC is ERC20 {

@@ -1,9 +1,9 @@
 {
-  "name": "arcperp-site",
+  "name": "perparc-site",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "ArcPerp marketing site + automated pairing endpoint (deterministic deposit-address derivation).",
+  "description": "PerpArc marketing site + automated pairing endpoint (deterministic deposit-address derivation).",
   "scripts": {
     "start": "node server.js"
   },

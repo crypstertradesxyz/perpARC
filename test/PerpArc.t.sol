@@ -2,12 +2,12 @@
 pragma solidity ^0.8.26;
 
 import { Test } from "forge-std/Test.sol";
-import { ArcPerpVaultFactory } from "../src/ArcPerpVaultFactory.sol";
-import { ArcPerpRelay } from "../src/ArcPerpRelay.sol";
+import { PerpArcVaultFactory } from "../src/PerpArcVaultFactory.sol";
+import { PerpArcRelay } from "../src/PerpArcRelay.sol";
 import { CreateLaunchParams } from "../src/interfaces/IArgusPortal.sol";
 import { MockUSDC, MockArgusPortal, MockArgusRevenueSplitter } from "./mocks/MockArgus.sol";
 
-contract ArcPerpTest is Test {
+contract PerpArcTest is Test {
     address internal owner = makeAddr("owner");
     address internal keeper = makeAddr("keeper");
     address internal launcher = makeAddr("launcher");
@@ -17,14 +17,14 @@ contract ArcPerpTest is Test {
 
     MockUSDC internal usdc;
     MockArgusPortal internal portal;
-    ArcPerpVaultFactory internal factory;
+    PerpArcVaultFactory internal factory;
 
     bytes32 internal constant BTC = bytes32("BTC");
 
     function setUp() public {
         usdc = new MockUSDC();
         portal = new MockArgusPortal();
-        factory = new ArcPerpVaultFactory(owner, address(portal), address(usdc), buybackWallet, keeper);
+        factory = new PerpArcVaultFactory(owner, address(portal), address(usdc), buybackWallet, keeper);
 
         vm.startPrank(owner);
         factory.setLauncher(launcher, true);
@@ -52,7 +52,7 @@ contract ArcPerpTest is Test {
         (address creator,,,,, address splitter,,,,,) = portal.launches(token);
         assertEq(creator, relayAddr, "relay must be Argus's creator, not realCreator or the launcher");
 
-        ArcPerpRelay relay = ArcPerpRelay(relayAddr);
+        PerpArcRelay relay = PerpArcRelay(relayAddr);
         assertEq(address(relay.splitter()), splitter);
         assertEq(relay.token(), token);
         assertEq(relay.realCreator(), realCreator);
@@ -75,29 +75,29 @@ contract ArcPerpTest is Test {
         vm.prank(launcher);
         (address token,) = factory.launch(p, BTC, true, 5, realCreator);
         (,,,,,,,,,, address quoteAsset) = portal.launches(token);
-        assertEq(quoteAsset, address(usdc), "quoteAsset must be forced to ArcPerp's USDC");
+        assertEq(quoteAsset, address(usdc), "quoteAsset must be forced to PerpArc's USDC");
     }
 
     function test_launch_revertsForNonLauncher() public {
-        vm.expectRevert(ArcPerpVaultFactory.NotLauncher.selector);
+        vm.expectRevert(PerpArcVaultFactory.NotLauncher.selector);
         factory.launch(_defaultParams(), BTC, true, 5, realCreator);
     }
 
     function test_launch_revertsForUnsupportedAsset() public {
         vm.prank(launcher);
-        vm.expectRevert(ArcPerpVaultFactory.AssetNotSupported.selector);
+        vm.expectRevert(PerpArcVaultFactory.AssetNotSupported.selector);
         factory.launch(_defaultParams(), bytes32("ETH"), true, 5, realCreator);
     }
 
     function test_launch_revertsForLeverageAboveCap() public {
         vm.prank(launcher);
-        vm.expectRevert(ArcPerpVaultFactory.LeverageAboveAssetCap.selector);
+        vm.expectRevert(PerpArcVaultFactory.LeverageAboveAssetCap.selector);
         factory.launch(_defaultParams(), BTC, true, 21, realCreator);
     }
 
     function test_collectFees_splits80_20AndSendsBuybackImmediately() public {
         (, address relayAddr) = _launch(true, 5);
-        ArcPerpRelay relay = ArcPerpRelay(relayAddr);
+        PerpArcRelay relay = PerpArcRelay(relayAddr);
 
         uint256 accrued = 1000e18;
         usdc.mint(address(relay.splitter()), accrued);
@@ -112,7 +112,7 @@ contract ArcPerpTest is Test {
 
     function test_collectFees_isPermissionless() public {
         (, address relayAddr) = _launch(true, 5);
-        ArcPerpRelay relay = ArcPerpRelay(relayAddr);
+        PerpArcRelay relay = PerpArcRelay(relayAddr);
         usdc.mint(address(relay.splitter()), 100e18);
         MockArgusRevenueSplitter(address(relay.splitter())).credit(address(usdc), 100e18);
 
@@ -122,12 +122,12 @@ contract ArcPerpTest is Test {
 
     function test_sweepPositionCapital_onlyKeeper() public {
         (, address relayAddr) = _launch(true, 5);
-        ArcPerpRelay relay = ArcPerpRelay(relayAddr);
+        PerpArcRelay relay = PerpArcRelay(relayAddr);
         usdc.mint(address(relay.splitter()), 100e18);
         MockArgusRevenueSplitter(address(relay.splitter())).credit(address(usdc), 100e18);
         relay.collectFees();
 
-        vm.expectRevert(ArcPerpRelay.NotKeeper.selector);
+        vm.expectRevert(PerpArcRelay.NotKeeper.selector);
         relay.sweepPositionCapital(positionSink);
 
         vm.prank(keeper);
@@ -139,10 +139,10 @@ contract ArcPerpTest is Test {
 
     function test_setKeeper_onlyOwner() public {
         (, address relayAddr) = _launch(true, 5);
-        ArcPerpRelay relay = ArcPerpRelay(relayAddr);
+        PerpArcRelay relay = PerpArcRelay(relayAddr);
         address newKeeper = makeAddr("newKeeper");
 
-        vm.expectRevert(ArcPerpRelay.NotOwner.selector);
+        vm.expectRevert(PerpArcRelay.NotOwner.selector);
         relay.setKeeper(newKeeper, true);
 
         vm.prank(owner);

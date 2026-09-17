@@ -1,4 +1,4 @@
-# ArcPerp — Spec
+# PerpArc — Spec
 
 Platform that launches tokens on **Arc** (Circle's USDC-native L1, chain id `5042`, mainnet live 2026-09-16) through the third-party launchpad **Argus** (argus.world), redirects a slice of every launch's Argus creator-fee share to us, and uses it to fund an isolated leveraged position on Hyperliquid per token — the same core model as [[Longshot]] (Robinhood Chain, own launch contracts), adapted for a launchpad we don't own.
 
@@ -6,7 +6,7 @@ Platform that launches tokens on **Arc** (Circle's USDC-native L1, chain id `504
 
 We don't build a launchpad, an AMM, or a token contract. Argus already provides all of that. We build:
 
-1. **`ArcPerpVault.sol`** — an on-chain contract that launches tokens *through* Argus's `Portal.createLaunch()`, becoming that launch's immutable Argus `creator` (and therefore the only address able to ever claim its creator fee share).
+1. **`PerpArcVault.sol`** — an on-chain contract that launches tokens *through* Argus's `Portal.createLaunch()`, becoming that launch's immutable Argus `creator` (and therefore the only address able to ever claim its creator fee share).
 2. A **keeper** (forked from Longshot's) that pulls each token's accrued USDC out of Argus, splits it 80/20, funds a Hyperliquid position with the 80%, and forwards the 20% to a buyback wallet.
 
 Per launch, fixed forever at launch time (same permanence model as Longshot):
@@ -38,14 +38,14 @@ Of the `creatorFunds` bucket we claim from Argus (which is already net of Argus'
 
 | Contract | Role |
 |---|---|
-| `ArcPerpVaultFactory.sol` | Owns the Hyperliquid asset/leverage allowlist (`maxLeverageForAsset`, synced from Hyperliquid's live catalog — same pattern as Longshot's `syncAssetAllowlist.ts`). `deployRelay(...)` validates asset/leverage, then deploys a per-token `ArcPerpRelay`, whose constructor itself calls Argus's `Portal.createLaunch()` — one transaction, relay becomes creator from block one. Owner/keeper-gated for now (not open to arbitrary callers — see "Design decisions"). |
-| `ArcPerpRelay.sol` | One per launched token. Holds `asset`/`isLong`/`leverage`/`realCreator`/Argus `splitter` address as immutables. `collectFees()` (permissionless) calls `RevenueSplitter.claim(address(this), USDC)`, splits the proceeds 80/20 in the same call, sends the 20% straight to the buyback wallet, credits the 80% to `pendingPosition`. `sweepPositionCapital(to)` (keeper-only) drains `pendingPosition` to the keeper for bridging. Modeled directly on Longshot's `PonsFeeRelay.sol`. |
+| `PerpArcVaultFactory.sol` | Owns the Hyperliquid asset/leverage allowlist (`maxLeverageForAsset`, synced from Hyperliquid's live catalog — same pattern as Longshot's `syncAssetAllowlist.ts`). `deployRelay(...)` validates asset/leverage, then deploys a per-token `PerpArcRelay`, whose constructor itself calls Argus's `Portal.createLaunch()` — one transaction, relay becomes creator from block one. Owner/keeper-gated for now (not open to arbitrary callers — see "Design decisions"). |
+| `PerpArcRelay.sol` | One per launched token. Holds `asset`/`isLong`/`leverage`/`realCreator`/Argus `splitter` address as immutables. `collectFees()` (permissionless) calls `RevenueSplitter.claim(address(this), USDC)`, splits the proceeds 80/20 in the same call, sends the 20% straight to the buyback wallet, credits the 80% to `pendingPosition`. `sweepPositionCapital(to)` (keeper-only) drains `pendingPosition` to the keeper for bridging. Modeled directly on Longshot's `PonsFeeRelay.sol`. |
 
 No `LaunchedToken`/`LaunchPool`/AMM contracts of our own — Argus's `Portal` owns all of that.
 
 ## Funding flow
 
-1. `ArcPerpRelay.collectFees()` claims USDC from Argus, splits 80/20, forwards the 20% to the buyback wallet immediately, credits `pendingPosition` with the 80%.
+1. `PerpArcRelay.collectFees()` claims USDC from Argus, splits 80/20, forwards the 20% to the buyback wallet immediately, credits `pendingPosition` with the 80%.
 2. Once `pendingPosition` crosses the USD funding threshold (same $50-style default as Longshot), keeper calls `sweepPositionCapital()` and receives that token's slice as USDC on Arc.
 3. **Bridge leg — needs verification, not yet chosen.** Arc's quote asset is already USDC, so (unlike Longshot's WETH→USDG swap on Robinhood Chain) there's no swap step before bridging. Two candidate routes:
    - **Across**, if/when it lists Arc as a source chain (Arc launched 2026-09-16; check `/api/available-routes` before relying on this — may not be listed yet).
@@ -67,7 +67,7 @@ No `LaunchedToken`/`LaunchPool`/AMM contracts of our own — Argus's `Portal` ow
 
 | Role | Powers |
 |---|---|
-| `keeper` | Calls `sweepPositionCapital` on any relay; the only party that moves position capital onward. Rotatable on `ArcPerpVaultFactory`. |
+| `keeper` | Calls `sweepPositionCapital` on any relay; the only party that moves position capital onward. Rotatable on `PerpArcVaultFactory`. |
 | Factory owner | Sets `maxLeverageForAsset`; gates who can call `deployRelay` (see "Design decisions" — permissionless launch is a deliberate later step, not v1). |
 
 `collectFees()` is permissionless on every relay (same as Longshot's `LaunchPool.collectFees()`) — it only ever realizes fees Argus already credited, so there's no reason to gate it.
@@ -75,7 +75,7 @@ No `LaunchedToken`/`LaunchPool`/AMM contracts of our own — Argus's `Portal` ow
 ## Design decisions
 
 - **Owner-gated launch, not permissionless, in v1.** Argus's mainnet contracts are one day old as of this spec and unverified against source read off GitHub rather than Arcscan. A fully open `deployRelay()` (any caller can launch and register any asset/leverage) is the natural v2 once Argus's real behavior — especially the `buybackBurn` bucket and whether `creator` can ever be reassigned — is confirmed on-chain. Gating it now avoids building the permission/allowlist surface twice.
-- **We don't use Argus's native `dividends`/`buybackBurn`/`liquidity` buckets.** All of Argus's 90% creator share goes to `creatorFunds`; the 80/20 position/buyback split happens in our own `ArcPerpRelay`, not in Argus's `RevenueSplitter`. This trades away Argus's built-in (if unverified) holder-dividend UX for a design with exactly one dependency on Argus's contract surface (`claim()`), which is also the one bucket whose mechanics are actually confirmed in what we've read.
+- **We don't use Argus's native `dividends`/`buybackBurn`/`liquidity` buckets.** All of Argus's 90% creator share goes to `creatorFunds`; the 80/20 position/buyback split happens in our own `PerpArcRelay`, not in Argus's `RevenueSplitter`. This trades away Argus's built-in (if unverified) holder-dividend UX for a design with exactly one dependency on Argus's contract surface (`claim()`), which is also the one bucket whose mechanics are actually confirmed in what we've read.
 - **No automated buyback/burn on the 20% bucket in v1** — explicit product decision (2026-09-17): funds land in a plain wallet, spent/swapped/burned manually until that flow is validated, then can be automated later without changing the on-chain relay (the relay only needs the destination address, not the logic that spends it).
 - **Bridge route intentionally left open** — Arc is one day old; committing to CCTP vs. Across before checking which one actually has a live route would be guessing. Isolate the choice behind one function so it's a keeper-config change, not a redesign, whichever way it lands.
 

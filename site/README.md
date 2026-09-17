@@ -1,4 +1,4 @@
-# ArcPerp site
+# PerpArc site
 
 Marketing page (`index.html`) + an automated pairing endpoint (`pair.html` +
 `server.js`) that generates a deposit wallet address for a token instantly,
@@ -36,7 +36,7 @@ address    = privateKeyToAccount(privateKey).address
 
 The same scheme Longshot's keeper already uses per-pool
 (`keccak256(HYPERLIQUID_DERIVATION_SECRET || pool)`), with the paired
-token's own address standing in for "pool" -- ArcPerp doesn't deploy a
+token's own address standing in for "pool" -- PerpArc doesn't deploy a
 contract per pairing under this model, so the token address is the only
 stable per-pairing identifier available.
 
@@ -67,7 +67,7 @@ Nothing here does anything with received funds yet -- there's no keeper
 watching these addresses, bridging balances, or opening Hyperliquid
 positions. `server.js` only hands out the address and records what was
 requested. Building that keeper is the next piece of work (see
-`../SPEC.md` and the in-progress `ArcPerpVaultFactory`/`ArcPerpRelay`
+`../SPEC.md` and the in-progress `PerpArcVaultFactory`/`PerpArcRelay`
 contracts, which predate this pairing model and describe a different,
 launch-it-ourselves flow -- SPEC.md needs reconciling with this simpler
 "generate a wallet, you redirect your own claim" model before either is
