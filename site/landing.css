@@ -1077,3 +1077,214 @@ footer .wrap { display: flex; justify-content: space-between; gap: 1rem; flex-wr
   margin-top: 0.75rem;
 }
 
+/* =========================================================================
+   Physics Drop-In & Stagger Animations
+   Elements drop from above with subtle spring overshoot and settle into place.
+   ========================================================================= */
+
+@keyframes dropIntoPlace {
+  0% {
+    opacity: 0;
+    transform: translateY(-42px) scale(0.96);
+  }
+  65% {
+    opacity: 0.95;
+    transform: translateY(5px) scale(1.008);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.drop-in {
+  animation: dropIntoPlace 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
+}
+
+.drop-d1 { animation-delay: 0.08s; }
+.drop-d2 { animation-delay: 0.18s; }
+.drop-d3 { animation-delay: 0.28s; }
+.drop-d4 { animation-delay: 0.38s; }
+.drop-d5 { animation-delay: 0.48s; }
+.drop-d6 { animation-delay: 0.58s; }
+
+/* Enhanced card hover physics */
+.wizard-card, .sim-card, .sim-controls, .pairing-item {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
+}
+
+.wizard-card:hover, .sim-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.55), 0 0 24px -6px rgba(233, 161, 63, 0.08);
+}
+
+/* =========================================================================
+   Seamless Page Slide Transitions
+   Navigating between routes glides the current view out and slides the new view in.
+   ========================================================================= */
+
+.page-wrapper {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Forward Navigation (e.g. Index -> Explore -> Pair) */
+.slide-exit-to-left {
+  animation: pageSlideOutLeft 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards !important;
+  pointer-events: none;
+}
+
+.slide-enter-from-right {
+  animation: pageSlideInRight 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+/* Backward Navigation (e.g. Pair -> Explore -> Index) */
+.slide-exit-to-right {
+  animation: pageSlideOutRight 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards !important;
+  pointer-events: none;
+}
+
+.slide-enter-from-left {
+  animation: pageSlideInLeft 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+@keyframes pageSlideOutLeft {
+  0% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    filter: blur(0px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-28%) scale(0.97);
+    filter: blur(4px);
+  }
+}
+
+@keyframes pageSlideInRight {
+  0% {
+    opacity: 0;
+    transform: translateX(35%) scale(0.98);
+    filter: blur(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    filter: blur(0px);
+  }
+}
+
+@keyframes pageSlideOutRight {
+  0% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    filter: blur(0px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(28%) scale(0.97);
+    filter: blur(4px);
+  }
+}
+
+@keyframes pageSlideInLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-35%) scale(0.98);
+    filter: blur(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    filter: blur(0px);
+  }
+}
+
+/* =========================================================================
+   Ambient Live Marquee & Glow Motion
+   ========================================================================= */
+
+.marquee-bar {
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  background: rgba(14, 27, 54, 0.7);
+  border-top: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--hairline);
+  padding: 0.65rem 0;
+  position: relative;
+  z-index: 5;
+  backdrop-filter: blur(8px);
+}
+
+.marquee-track {
+  display: inline-flex;
+  animation: marqueeLoop 24s linear infinite;
+  gap: 3rem;
+  will-change: transform;
+}
+
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+.marquee-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--mono);
+  font-size: 0.83rem;
+  color: var(--bone-dim);
+}
+
+.marquee-item .highlight {
+  color: var(--sodium);
+  font-weight: 500;
+}
+
+.marquee-item .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--cobalt);
+  box-shadow: 0 0 8px var(--cobalt);
+}
+
+@keyframes marqueeLoop {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.ambient-glow {
+  position: fixed;
+  top: -15%;
+  right: -10%;
+  width: 650px;
+  height: 650px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(233, 161, 63, 0.07) 0%, rgba(172, 198, 233, 0.035) 45%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+  animation: ambientFloat 18s ease-in-out infinite alternate;
+}
+
+@keyframes ambientFloat {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-50px, 80px) scale(1.1); }
+  100% { transform: translate(30px, 120px) scale(0.95); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drop-in { animation: none !important; }
+  .marquee-track { animation: none !important; }
+  .ambient-glow { animation: none !important; }
+  .slide-exit-to-left, .slide-enter-from-right,
+  .slide-exit-to-right, .slide-enter-from-left {
+    animation: none !important;
+  }
+}
+
+

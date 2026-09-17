@@ -10,8 +10,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="landing.css">
+<script src="transitions.js" defer></script>
 </head>
 <body>
+<div class="ambient-glow"></div>
 
 <header class="topbar">
   <div class="wrap">
@@ -25,18 +27,18 @@
   </div>
 </header>
 
-<main class="wrap">
-  <section class="subpage-hero reveal-item revealed">
-    <p class="eyebrow">Realtime Mechanics</p>
-    <h1>Simulator &amp; Explorer.</h1>
-    <p class="sub-lede">
+<main class="page-wrapper wrap">
+  <section class="subpage-hero">
+    <p class="eyebrow drop-in drop-d1">Realtime Mechanics</p>
+    <h1 class="drop-in drop-d2">Simulator &amp; Explorer.</h1>
+    <p class="sub-lede drop-in drop-d3">
       Model how your token's daily volume fuels autonomous buybacks and compounding Hyperliquid margin. Browse tokens actively paired on Arc mainnet.
     </p>
   </section>
 
   <!-- Section: Interactive Simulator -->
-  <div class="sim-grid reveal-item revealed">
-    <div class="sim-controls">
+  <div class="sim-grid">
+    <div class="sim-controls drop-in drop-d3">
       <div style="font-size: 1.25rem; font-weight: 500; margin-bottom: 0.25rem; color: var(--bone);">
         Simulation Parameters
       </div>
@@ -104,7 +106,7 @@
     </div>
 
     <!-- Live Reactive Simulator Output -->
-    <div class="sim-display">
+    <div class="sim-display drop-in drop-d4">
       <div class="sim-card">
         <span class="eyebrow" style="margin-bottom: 0.5rem; display: inline-block;">Projected Perpetual Exposure</span>
         <div style="font-family: var(--mono); font-size: clamp(2.4rem, 4vw, 3.4rem); font-weight: 600; color: var(--sand); line-height: 1.1; margin: 0.4rem 0 0.8rem;" id="out-total-exposure">

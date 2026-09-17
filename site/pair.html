@@ -10,8 +10,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="landing.css">
+<script src="transitions.js" defer></script>
 </head>
 <body>
+<div class="ambient-glow"></div>
 
 <header class="topbar">
   <div class="wrap">
@@ -25,16 +27,16 @@
   </div>
 </header>
 
-<main class="wrap">
-  <section class="subpage-hero reveal-item revealed">
-    <p class="eyebrow">Pairing Studio</p>
-    <h1>Get your PerpArc wallet.</h1>
-    <p class="sub-lede">
+<main class="page-wrapper wrap">
+  <section class="subpage-hero">
+    <p class="eyebrow drop-in drop-d1">Pairing Studio</p>
+    <h1 class="drop-in drop-d2">Get your PerpArc wallet.</h1>
+    <p class="sub-lede drop-in drop-d3">
       Configure your target Hyperliquid market and leverage multiple. Your deterministic deposit address is generated immediately &mdash; set it as your Coinbarrel revenue controller at launch.
     </p>
   </section>
 
-  <div class="wizard-card reveal-item revealed">
+  <div class="wizard-card drop-in drop-d4">
     <div class="wizard-progress">
       <button class="progress-step active" id="prog-1" type="button">
         <span class="step-num">1</span>

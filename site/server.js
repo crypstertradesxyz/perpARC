@@ -201,7 +201,7 @@ async function handleListPairings(res) {
 // happily served this very file, /server.js, since it has a "safe"
 // extension despite being server-internal. A file being public has to be
 // an explicit choice per-path, not a side effect of what it's named.
-const STATIC_FILES = new Set(["/index.html", "/pair.html", "/explore.html", "/style.css", "/landing.css"]);
+const STATIC_FILES = new Set(["/index.html", "/pair.html", "/explore.html", "/style.css", "/landing.css", "/transitions.js"]);
 
 async function handleStatic(req, res) {
   const urlPath = decodeURIComponent(req.url.split("?")[0]);

@@ -10,8 +10,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="landing.css">
+<script src="transitions.js" defer></script>
 </head>
 <body>
+<div class="ambient-glow"></div>
 
 <header class="topbar">
   <div class="wrap">
@@ -26,7 +28,7 @@
   </div>
 </header>
 
-<main>
+<main class="page-wrapper">
   <section class="hero" id="hero" aria-labelledby="hero-title">
     <canvas id="arc" aria-hidden="true"></canvas>
 
@@ -35,18 +37,33 @@
     <span class="arc-label cool" data-anchor="orb">Position<strong data-short="80%, BTC 5x">80% to BTC long, 5x</strong></span>
 
     <div class="wrap hero-copy">
-      <p class="eyebrow">Built on Arc</p>
-      <h1 id="hero-title">Your fees, leveraged.</h1>
-      <p class="lede">
+      <p class="eyebrow drop-in drop-d1">Built on Arc</p>
+      <h1 id="hero-title" class="drop-in drop-d2">Your fees, leveraged.</h1>
+      <p class="lede drop-in drop-d3">
         Launch on <strong>Coinbarrel</strong> with a PerpArc wallet as your revenue controller. Every trade's fee
         feeds a live, leveraged position on <strong>Hyperliquid</strong>, run by a keeper that never sleeps.
       </p>
-      <div class="hero-actions">
+      <div class="hero-actions drop-in drop-d4">
         <a class="button-primary" href="pair.html">Get your wallet</a>
         <a class="button-quiet" href="#how">See how it works</a>
       </div>
     </div>
   </section>
+
+  <div class="marquee-bar">
+    <div class="marquee-track">
+      <div class="marquee-item"><span class="dot"></span><span>Arc Mainnet <strong style="color:var(--bone);">5042</strong></span></div>
+      <div class="marquee-item"><span class="dot"></span><span>Coinbarrel <strong style="color:var(--sand);">Revenue Hook</strong></span></div>
+      <div class="marquee-item"><span class="dot"></span><span>Circle CCTP v2 <span class="highlight">Direct Arc &rarr; Arbitrum</span></span></div>
+      <div class="marquee-item"><span class="dot"></span><span>Hyperliquid L1 <strong style="color:var(--cobalt);">Isolated Margin</strong></span></div>
+      <div class="marquee-item"><span class="dot"></span><span>Autonomous Keeper <span class="highlight">Zero Human Intervention</span></span></div>
+      <div class="marquee-item"><span class="dot"></span><span>Arc Mainnet <strong style="color:var(--bone);">5042</strong></span></div>
+      <div class="marquee-item"><span class="dot"></span><span>Coinbarrel <strong style="color:var(--sand);">Revenue Hook</strong></span></div>
+      <div class="marquee-item"><span class="dot"></span><span>Circle CCTP v2 <span class="highlight">Direct Arc &rarr; Arbitrum</span></span></div>
+      <div class="marquee-item"><span class="dot"></span><span>Hyperliquid L1 <strong style="color:var(--cobalt);">Isolated Margin</strong></span></div>
+      <div class="marquee-item"><span class="dot"></span><span>Autonomous Keeper <span class="highlight">Zero Human Intervention</span></span></div>
+    </div>
+  </div>
 
   <section class="block reveal-item" id="keeper" aria-labelledby="keeper-title">
     <div class="wrap keeper">
