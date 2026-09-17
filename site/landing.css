@@ -1,0 +1,450 @@
+:root {
+  /* Derived from Arc's published palette (arc.io design tokens): protocol
+     navy, cipher violet, quantum plum, blockstream gold, token sand, sky
+     sync, static ether, burnt block, miner clay. Darkened into a dusk sky. */
+  --night: #0e1b36;
+  --navy: #1b3158;
+  --night-raised: #16284a;
+  --violet: #412c5c;
+  --plum: #664c88;
+  --bone: #d5e0e7;
+  --bone-dim: #9fb0c8;
+  --sodium: #e9a13f;
+  --sand: #ffcc6f;
+  --cobalt: #acc6e9;
+  --validator: #2f578c;
+  --ember: #702718;
+  --rose: #d49a91;
+  --hairline: rgba(213, 224, 231, 0.13);
+
+  --display: "Geist", system-ui, sans-serif;
+  --body: "Geist", system-ui, sans-serif;
+  --mono: "Geist Mono", ui-monospace, monospace;
+}
+
+* { box-sizing: border-box; }
+
+html { background: var(--night); }
+
+body {
+  margin: 0;
+  background: var(--night);
+  color: var(--bone);
+  font-family: var(--body);
+  font-size: 1.0625rem;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+
+a { color: inherit; }
+
+:focus-visible {
+  outline: 2px solid var(--sodium);
+  outline-offset: 3px;
+}
+
+.wrap {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 4vw, 2.5rem);
+}
+
+/* ---------- Top bar ---------- */
+
+.topbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+}
+
+.topbar .wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 1.4rem;
+  padding-bottom: 1.4rem;
+}
+
+.wordmark {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 1.35rem;
+  letter-spacing: -0.03em;
+  text-decoration: none;
+}
+
+.wordmark span { color: var(--sodium); }
+
+.topbar nav { display: flex; gap: 1.75rem; align-items: center; }
+
+.topbar nav a {
+  text-decoration: none;
+  color: var(--bone-dim);
+  font-size: 0.95rem;
+}
+
+.topbar nav a:hover { color: var(--bone); }
+
+.topbar nav a.nav-cta {
+  color: var(--night);
+  background: var(--bone);
+  padding: 0.5rem 0.95rem;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.topbar nav a.nav-cta:hover { background: #ffffff; color: var(--night); }
+
+@media (max-width: 720px) {
+  .topbar nav a:not(.nav-cta) { display: none; }
+}
+
+/* ---------- Hero ---------- */
+
+.hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  align-items: flex-start;
+  overflow: hidden;
+  background:
+    radial-gradient(70% 45% at 50% 108%, rgba(233, 161, 63, 0.38), transparent 70%),
+    radial-gradient(45% 40% at 90% 75%, rgba(172, 198, 233, 0.16), transparent 70%),
+    linear-gradient(180deg, #0e1b36 0%, #1b3158 42%, #412c5c 78%, #5a2a3a 100%);
+}
+
+.hero canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.hero-copy {
+  position: relative;
+  z-index: 2;
+  padding-top: clamp(7rem, 16vh, 11rem);
+}
+
+.hero h1 {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(2.9rem, 7vw, 6.2rem);
+  line-height: 1;
+  letter-spacing: -0.045em;
+  margin: 0 0 1.5rem;
+  max-width: 10ch;
+}
+
+.hero .lede {
+  max-width: 34ch;
+  color: var(--bone-dim);
+  font-size: clamp(1.05rem, 1.4vw, 1.2rem);
+  margin: 0 0 2rem;
+}
+
+.hero .lede strong { color: var(--bone); font-weight: 500; }
+
+.hero-actions { display: flex; gap: 1.25rem; align-items: center; flex-wrap: wrap; }
+
+.button-primary {
+  display: inline-block;
+  background: var(--bone);
+  color: var(--night);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.8rem 1.3rem;
+  border-radius: 6px;
+}
+
+.button-primary:hover { background: #ffffff; }
+
+.button-quiet {
+  color: var(--bone-dim);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-color: var(--hairline);
+}
+
+.button-quiet:hover { color: var(--bone); }
+
+/* Annotations pinned to canvas geometry (positions set from JS in the same
+   coordinate space the arc is drawn in). Arc's mono label idiom, with a
+   hairline leader toward the point they describe. */
+.arc-label {
+  position: absolute;
+  z-index: 3;
+  padding-left: 0.9rem;
+  border-left: 1px solid var(--hairline);
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 700ms ease;
+}
+
+.arc-label strong {
+  display: block;
+  margin-top: 0.2rem;
+  font-family: var(--body);
+  font-size: 0.9rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--bone);
+}
+
+.arc-label.warm { border-left-color: rgba(233, 161, 63, 0.55); }
+.arc-label.cool { border-left-color: rgba(172, 198, 233, 0.55); }
+.arc-label.is-visible { opacity: 1; }
+
+/* ---------- Sections ---------- */
+
+section.block { padding: clamp(4.5rem, 10vw, 8rem) 0; }
+section.block + section.block { border-top: 1px solid var(--hairline); }
+
+.block h2 {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(2.1rem, 4.4vw, 3.6rem);
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  margin: 0 0 1.25rem;
+  max-width: 16ch;
+}
+
+.block .intro {
+  color: var(--bone-dim);
+  max-width: 52ch;
+  margin: 0 0 3rem;
+}
+
+/* ---------- Keeper log ---------- */
+
+.keeper {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: clamp(2rem, 5vw, 4.5rem);
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .keeper { grid-template-columns: 1fr; }
+}
+
+.terminal {
+  background: rgba(22, 40, 74, 0.55);
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: none;
+}
+
+.terminal-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.8rem 1.1rem;
+  border-bottom: 1px solid var(--hairline);
+  font-size: 0.8rem;
+  color: var(--bone-dim);
+}
+
+.terminal-head > span:first-child { white-space: nowrap; flex-shrink: 0; }
+.terminal-head > span:last-child { text-align: right; }
+
+.terminal-head .live-dot {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--sodium);
+  margin-right: 0.45rem;
+  vertical-align: 0.05rem;
+}
+
+.terminal ol {
+  list-style: none;
+  margin: 0;
+  padding: 1.1rem 1.1rem 1.4rem;
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  line-height: 1.75;
+  min-height: 17.5rem;
+}
+
+.terminal li {
+  display: grid;
+  grid-template-columns: 5.2rem minmax(0, 1fr);
+  gap: 0.75rem;
+  color: var(--bone);
+}
+
+.terminal li .t { color: var(--bone-dim); }
+.terminal li .warm { color: var(--sodium); }
+.terminal li .cool { color: var(--cobalt); }
+.terminal li[hidden] { display: none; }
+
+.terminal .caret {
+  display: inline-block;
+  width: 0.55ch;
+  background: var(--sodium);
+  animation: blink 1s steps(2, start) infinite;
+}
+
+@keyframes blink { to { visibility: hidden; } }
+
+@media (max-width: 520px) {
+  .terminal li { grid-template-columns: 1fr; gap: 0; }
+  .terminal li .t { font-size: 0.72rem; }
+}
+
+/* ---------- Steps ---------- */
+
+.steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+  counter-reset: step;
+}
+
+@media (max-width: 860px) {
+  .steps { grid-template-columns: 1fr; }
+}
+
+.steps li {
+  counter-increment: step;
+  border-top: 1px solid var(--hairline);
+  padding-top: 1.25rem;
+}
+
+.steps li::before {
+  content: "0" counter(step);
+  display: block;
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: 0.85rem;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  color: var(--sodium);
+  margin-bottom: 0.75rem;
+}
+
+.steps li::before { color: var(--sodium); }
+.steps li:last-child::before { color: var(--cobalt); }
+
+.steps h3 { font-size: 1.25rem; font-weight: 500; letter-spacing: -0.02em; margin: 0 0 0.5rem; }
+.steps p { color: var(--bone-dim); margin: 0; }
+
+/* ---------- Split ---------- */
+
+.split-figures {
+  display: grid;
+  grid-template-columns: 80fr 20fr;
+  margin-bottom: 0.9rem;
+}
+
+.split-figures div { padding-right: 1rem; }
+
+.split-figures .figure {
+  display: block;
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(2.6rem, 6vw, 4.5rem);
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+.split-figures .cool { color: var(--cobalt); }
+.split-figures .warm { color: var(--sodium); }
+
+.split-figures .caption { display: block; margin-top: 0.4rem; color: var(--bone-dim); font-size: 0.95rem; }
+
+.split-bar { display: flex; height: 6px; margin-bottom: 0.6rem; }
+.split-bar .split-position { width: 80%; background: linear-gradient(90deg, var(--validator), var(--cobalt)); }
+.split-bar .split-buyback { width: 20%; background: var(--sodium); margin-left: 2px; }
+
+.split-scale {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  color: var(--bone-dim);
+}
+
+.split-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 2.5rem;
+  color: var(--bone-dim);
+  font-size: 0.95rem;
+}
+
+.split-key strong { color: var(--bone); font-weight: 500; }
+
+.note { color: var(--bone-dim); font-size: 0.95rem; max-width: 60ch; margin: 2rem 0 0; }
+
+/* ---------- Risk ---------- */
+
+.risk-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2rem 3rem;
+}
+
+@media (max-width: 760px) {
+  .risk-list { grid-template-columns: 1fr; }
+}
+
+.risk-list strong { display: block; color: var(--rose); font-weight: 500; margin-bottom: 0.35rem; }
+.risk-list p { margin: 0; color: var(--bone-dim); }
+
+/* ---------- Closing ---------- */
+
+.closing { text-align: left; }
+.closing h2 { max-width: 12ch; }
+
+footer {
+  border-top: 1px solid var(--hairline);
+  padding: 2rem 0 2.5rem;
+  color: var(--bone-dim);
+  font-size: 0.9rem;
+}
+
+footer .wrap { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+
+@media (prefers-reduced-motion: reduce) {
+  .terminal .caret { animation: none; }
+  .arc-label { transition: none; }
+}
+
+/* ---------- Eyebrow ----------
+   Arc's own label idiom: Space Mono, tracked, wrapped in gold braces. */
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+  margin: 0 0 1.4rem;
+}
+
+.eyebrow::before { content: "{"; color: var(--sodium); margin-right: 0.15em; }
+.eyebrow::after { content: "}"; color: var(--sodium); margin-left: 0.15em; }

@@ -2,156 +2,531 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>PerpArc</title>
-<meta name="description" content="PerpArc launches tokens on Arc through Argus, then turns their trading fees into a leveraged Hyperliquid position." />
+<meta name="description" content="Launch your token on Coinbarrel with a PerpArc wallet as its revenue controller. Your trading fees fund a leveraged Hyperliquid position, run by an autonomous keeper." />
+<meta name="theme-color" content="#0e1b36" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="landing.css">
 </head>
 <body>
 
-<div class="wrap">
-  <header class="top">
-    <div class="wordmark">Perp<span>Arc</span></div>
-    <nav>
+<header class="topbar">
+  <div class="wrap">
+    <a class="wordmark" href="index.html">Perp<span>Arc</span></a>
+    <nav aria-label="Main">
+      <a href="#keeper">The keeper</a>
       <a href="#how">How it works</a>
-      <a href="#split">The split</a>
       <a href="#risk">Risk</a>
-      <a href="pair.html" class="nav-cta">Pair a token</a>
+      <a href="pair.html" class="nav-cta">Get your wallet</a>
     </nav>
-  </header>
-</div>
+  </div>
+</header>
 
-<div class="wrap">
-  <section class="hero">
-    <h1>Redirect your fees. We fund the position.</h1>
-    <p class="lede prose">
-      Launch your token however you like on <strong>Arc</strong> through <strong>Argus</strong>. Pair it with PerpArc
-      and we hand you a wallet address &mdash; redirect your claimed fees there, and we turn them into an isolated,
-      leveraged position on <strong>Hyperliquid</strong>, long or short, at whatever multiple you picked when you paired.
-    </p>
+<main>
+  <section class="hero" id="hero" aria-labelledby="hero-title">
+    <canvas id="arc" aria-hidden="true"></canvas>
 
-    <div class="flow-card">
-      <svg viewBox="0 0 920 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A trade's tax splits into Argus's 10 percent treasury cut and your 90 percent claim; once you redirect that claim to your PerpArc wallet, it splits again into an 80 percent share that funds your Hyperliquid position and a 20 percent share sent to a buyback wallet.">
-        <defs>
-          <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
-            <path d="M0,0 L8,4 L0,8 Z" fill="#445168" />
-          </marker>
-        </defs>
+    <span class="arc-label warm" data-anchor="source">Fee in<strong data-short="Every trade">Every trade on your pool</strong></span>
+    <span class="arc-label warm" data-anchor="buyback">Split<strong data-short="20% buyback">20% to buyback</strong></span>
+    <span class="arc-label cool" data-anchor="orb">Position<strong data-short="80%, BTC 5x">80% to BTC long, 5x</strong></span>
 
-        <!-- source node -->
-        <rect x="10" y="86" width="150" height="48" rx="6" fill="#ffffff" stroke="#cad3de" />
-        <text x="85" y="106" text-anchor="middle" font-size="13" font-weight="600" fill="#101c2c">A trade on</text>
-        <text x="85" y="122" text-anchor="middle" font-size="13" font-weight="600" fill="#101c2c">your token's pool</text>
-
-        <line x1="160" y1="110" x2="230" y2="110" stroke="#445168" stroke-width="1.5" marker-end="url(#arrow)" />
-
-        <!-- splitter node -->
-        <rect x="232" y="86" width="150" height="48" rx="6" fill="#ffffff" stroke="#cad3de" />
-        <text x="307" y="106" text-anchor="middle" font-size="13" font-weight="600" fill="#101c2c">Argus splits</text>
-        <text x="307" y="122" text-anchor="middle" font-size="13" font-weight="600" fill="#101c2c">the USDC tax</text>
-
-        <!-- three branches -->
-        <path d="M382,100 C 430,100 430,40 480,40" stroke="#445168" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
-        <path d="M382,110 L480,110" stroke="#445168" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
-        <path d="M382,120 C 430,120 430,180 480,180" stroke="#445168" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
-
-        <rect x="482" y="16" width="180" height="48" rx="6" fill="#f2f4f7" stroke="#cad3de" />
-        <text x="572" y="36" text-anchor="middle" font-size="13" font-weight="600" fill="#445168">Argus treasury</text>
-        <text x="572" y="52" text-anchor="middle" font-size="12" fill="#445168">10% of the tax</text>
-
-        <rect x="482" y="86" width="180" height="48" rx="6" fill="#eaf0ff" stroke="#a9c0f7" />
-        <text x="572" y="106" text-anchor="middle" font-size="13" font-weight="600" fill="#163a9e">You claim</text>
-        <text x="572" y="122" text-anchor="middle" font-size="12" fill="#163a9e">90%, to your PerpArc wallet</text>
-
-        <rect x="482" y="156" width="180" height="48" rx="6" fill="#f7eeec" stroke="#dfc3c1" fill-opacity="0" stroke-opacity="0" />
-
-        <line x1="662" y1="110" x2="720" y2="110" stroke="#445168" stroke-width="1.5" marker-end="url(#arrow)" />
-
-        <path d="M720,110 C 750,110 750,70 780,70" stroke="#445168" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
-        <path d="M720,110 C 750,110 750,150 780,150" stroke="#445168" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
-
-        <rect x="782" y="46" width="128" height="48" rx="6" fill="#2a5df4" />
-        <text x="846" y="66" text-anchor="middle" font-size="13" font-weight="600" fill="#ffffff">Hyperliquid</text>
-        <text x="846" y="82" text-anchor="middle" font-size="12" fill="#dce6ff">position, 80%</text>
-
-        <rect x="782" y="126" width="128" height="48" rx="6" fill="#b8823b" />
-        <text x="846" y="146" text-anchor="middle" font-size="13" font-weight="600" fill="#ffffff">Buyback wallet</text>
-        <text x="846" y="162" text-anchor="middle" font-size="12" fill="#f4e6d2">20%</text>
-      </svg>
-      <div class="flow-caption">
-        <span>Fee currency: native Arc USDC &mdash; no swap needed before it reaches your wallet.</span>
-        <span>From your PerpArc wallet: capital bridges on to Hyperliquid, the rest sits in its own buyback wallet.</span>
+    <div class="wrap hero-copy">
+      <p class="eyebrow">Built on Arc</p>
+      <h1 id="hero-title">Your fees, leveraged.</h1>
+      <p class="lede">
+        Launch on <strong>Coinbarrel</strong> with a PerpArc wallet as your revenue controller. Every trade's fee
+        feeds a live, leveraged position on <strong>Hyperliquid</strong>, run by a keeper that never sleeps.
+      </p>
+      <div class="hero-actions">
+        <a class="button-primary" href="pair.html">Get your wallet</a>
+        <a class="button-quiet" href="#how">See how it works</a>
       </div>
     </div>
   </section>
 
-  <section id="how">
-    <h2>How pairing works</h2>
-    <div class="stages">
-      <div class="stage">
-        <div class="n">First</div>
-        <h3>Launch on Argus, however you like</h3>
-        <p>PerpArc doesn't launch your token for you. Use Argus's own launchpad on Arc, set whatever buy/sell tax you want &mdash; the token is entirely yours.</p>
+  <section class="block" id="keeper" aria-labelledby="keeper-title">
+    <div class="wrap keeper">
+      <div>
+        <p class="eyebrow">The keeper</p>
+        <h2 id="keeper-title">An agent runs your position.</h2>
+        <p class="intro">
+          The PerpArc keeper watches every paired wallet on Arc. When fees land, it splits them, bridges the
+          position share to Hyperliquid through Circle's CCTP, and keeps your position at the leverage you picked.
+          No one has to press a button.
+        </p>
       </div>
-      <div class="stage">
-        <div class="n">Then</div>
-        <h3>Pair it, and get a wallet</h3>
-        <p>Tell us the Hyperliquid asset, side, and leverage multiple you want. We generate a wallet address for that pairing &mdash; nothing on your token changes.</p>
-      </div>
-      <div class="stage">
-        <div class="n">Ongoing</div>
-        <h3>Redirect your fees, we do the rest</h3>
-        <p>Point your own claimed Argus fees at that address. Once a balance crosses the funding threshold, we bridge it to Hyperliquid and manage an isolated position for it.</p>
+
+      <div class="terminal" role="region" aria-label="Illustrated keeper run">
+        <div class="terminal-head">
+          <span><span class="live-dot" aria-hidden="true"></span>keeper</span>
+          <span>Illustration with example figures, not live data</span>
+        </div>
+        <ol id="log">
+          <li><span class="t">14:02:11</span><span>watching 3 paired wallets on Arc</span></li>
+          <li><span class="t">14:02:12</span><span>$GADGET wallet holds <span class="warm">61.40 USDC</span>, past the 50 USDC threshold</span></li>
+          <li><span class="t">14:02:12</span><span>$GADGET sent <span class="warm">12.28 USDC</span> to the buyback wallet</span></li>
+          <li><span class="t">14:02:14</span><span>$GADGET bridging <span class="cool">49.12 USDC</span> from Arc to Arbitrum via CCTP</span></li>
+          <li><span class="t">14:04:57</span><span>$GADGET attestation received, minted on Arbitrum</span></li>
+          <li><span class="t">14:05:03</span><span>$GADGET deposited to Hyperliquid margin</span></li>
+          <li><span class="t">14:05:04</span><span>$GADGET <span class="cool">BTC long 5x</span> topped back up to target leverage</span></li>
+        </ol>
       </div>
     </div>
   </section>
 
-  <section id="split">
-    <h2>Where a dollar of trading tax goes</h2>
-    <div class="split-bar">
-      <div class="split-argus">10&cent;</div>
-      <div class="split-position">72&cent;</div>
-      <div class="split-buyback">18&cent;</div>
-    </div>
-    <div class="split-key">
-      <div class="item"><span class="swatch" style="background:var(--ink-soft)"></span> Argus treasury &mdash; fixed by Argus, before it ever reaches you</div>
-      <div class="item"><span class="swatch" style="background:var(--blue)"></span> Position capital &mdash; 80% of what you redirect to your PerpArc wallet</div>
-      <div class="item"><span class="swatch" style="background:var(--brass)"></span> Buyback wallet &mdash; the other 20%</div>
+  <section class="block" id="how" aria-labelledby="how-title">
+    <div class="wrap">
+      <p class="eyebrow">How it works</p>
+      <h2 id="how-title">Three steps, then it runs itself.</h2>
+      <p class="intro">
+        On Coinbarrel, whoever launches a token decides where its fees go. You decide to send them to a position.
+      </p>
+      <ol class="steps">
+        <li>
+          <h3>Get your wallet</h3>
+          <p>Pick a Hyperliquid market, long or short, and a leverage multiple. PerpArc generates a wallet for that position.</p>
+        </li>
+        <li>
+          <h3>Launch with it</h3>
+          <p>When you launch on Coinbarrel, set that wallet as your revenue controller. That choice is made once, at launch.</p>
+        </li>
+        <li>
+          <h3>The keeper takes over</h3>
+          <p>As fees arrive, it splits them, funds your position, and holds it at your leverage.</p>
+        </li>
+      </ol>
     </div>
   </section>
 
-  <section id="risk">
-    <div class="risk">
-      <h2>What can go wrong</h2>
-      <ul>
-        <li><strong>Positions get liquidated.</strong> When one does, it reopens at the same asset, side, and multiple &mdash; the loss isn't recovered or made up elsewhere.</li>
-        <li><strong>The token's price isn't the position's price.</strong> They're linked only through buybacks; a token can fall while its position is fine, or the reverse.</li>
-        <li><strong>You control the redirect.</strong> Pointing your fees at your PerpArc wallet is a choice you make and can change &mdash; nothing about your token is locked to us.</li>
-        <li><strong>Arc and Argus are new.</strong> Arc mainnet opened this month. Pairing depends on Argus's live contracts working as documented, not a simulation of them.</li>
-        <li><strong>Nothing here is investment advice.</strong> Leverage cuts both ways, for the position and for anyone holding the token.</li>
+  <section class="block" id="split" aria-labelledby="split-title">
+    <div class="wrap">
+      <p class="eyebrow">The split</p>
+      <h2 id="split-title">Where your fee goes.</h2>
+      <div class="split" role="img" aria-label="80 percent to the position, 20 percent to the buyback wallet">
+        <div class="split-figures">
+          <div><span class="figure cool">80%</span><span class="caption">Position capital, margin for your token's isolated Hyperliquid position.</span></div>
+          <div><span class="figure warm">20%</span><span class="caption">Buyback wallet.</span></div>
+        </div>
+        <div class="split-bar"><div class="split-position"></div><div class="split-buyback"></div></div>
+        <div class="split-scale" aria-hidden="true"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+      </div>
+      <p class="note">
+        Coinbarrel charges its own flat 1% on every trade, separately. The split above applies to the fee you set on
+        top of that, the part that flows to your PerpArc wallet.
+      </p>
+    </div>
+  </section>
+
+  <section class="block" id="risk" aria-labelledby="risk-title">
+    <div class="wrap">
+      <p class="eyebrow">Risk</p>
+      <h2 id="risk-title">What can go wrong.</h2>
+      <ul class="risk-list">
+        <li>
+          <strong>Positions get liquidated.</strong>
+          <p>A liquidated position reopens at the same market, side, and leverage. The lost margin isn't recovered.</p>
+        </li>
+        <li>
+          <strong>Your controller choice is hard to undo.</strong>
+          <p>On Coinbarrel, only its platform admin can change a token's revenue controller after launch. We checked this on-chain.</p>
+        </li>
+        <li>
+          <strong>The keeper holds the wallet.</strong>
+          <p>PerpArc's keeper controls your PerpArc wallet's key. Treat it like any custodial deposit address.</p>
+        </li>
+        <li>
+          <strong>Token price isn't position price.</strong>
+          <p>They're linked only through buybacks. Your token can fall while the position does well, or the reverse.</p>
+        </li>
+        <li>
+          <strong>Arc is new.</strong>
+          <p>Arc mainnet opened in September 2026. Bridges and integrations on it are still young.</p>
+        </li>
+        <li>
+          <strong>This isn't investment advice.</strong>
+          <p>Leverage cuts both ways, for the position and for everyone holding the token.</p>
+        </li>
       </ul>
     </div>
   </section>
 
-  <section id="pair">
-    <h2>Pairing</h2>
-    <p class="prose" style="color:var(--ink-soft)">
-      Pairing works for any token already trading on Argus, on Arc. Tell us the token and the position you want,
-      and your PerpArc wallet address is generated instantly &mdash; no application, no waiting.
-    </p>
-    <a href="pair.html" class="button-primary">Pair a token</a>
+  <section class="block closing" aria-labelledby="closing-title">
+    <div class="wrap">
+      <h2 id="closing-title">Launch with a position behind it.</h2>
+      <a class="button-primary" href="pair.html">Get your wallet</a>
+    </div>
   </section>
-</div>
+</main>
 
-<div class="wrap">
-  <footer>
+<footer>
+  <div class="wrap">
     <span>PerpArc runs on Arc mainnet, chain id 5042.</span>
-    <span>Launched through Argus.</span>
-  </footer>
-</div>
+    <span>Tokens launch on Coinbarrel.</span>
+  </div>
+</footer>
 
+<script>
+(() => {
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // ---------------------------------------------------------------------
+  // Hero: a trajectory drawn like an instrument, not a firework. A hairline
+  // arc with tick marks; each trade is a crisp dot with a short trail; the
+  // 20% buyback drops down a guide line to its marker; the 80% lands in a
+  // leverage gauge with one ring per multiple.
+  // ---------------------------------------------------------------------
+  const hero = document.getElementById("hero");
+  const canvas = document.getElementById("arc");
+  const ctx = canvas.getContext("2d");
+  const labels = [...document.querySelectorAll(".arc-label")];
+
+  const GOLD = [233, 161, 63];   // Arc "blockstream gold"
+  const SKY = [172, 198, 233];   // Arc "sky sync"
+  const ETHER = [213, 224, 231]; // Arc "static ether"
+  const LEVERAGE = 5;
+
+  let W = 0, H = 0, dpr = 1;
+  let P0, C, P2, drop;
+  let drawProgress = reduceMotion ? 1 : 0;
+  let startTime = null, lastFrame = 0, lastSpawn = 0, running = false;
+  let particles = [], falling = [];
+  let gaugePulse = 0, sourcePulse = 0;
+
+  const rgba = (c, a) => `rgba(${c[0]}, ${c[1]}, ${c[2]}, ${a})`;
+  const mix = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
+
+  // Measure the rendered text, not the block boxes: a heading's box can be
+  // much wider than its ink, which would wrongly force the stacked layout.
+  function copyBounds() {
+    const heroRect = hero.getBoundingClientRect();
+    let right = 0, bottom = 0;
+    for (const el of document.querySelectorAll(".hero .eyebrow, .hero h1, .hero .lede, .hero-actions > *")) {
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      for (const b of [range.getBoundingClientRect(), el.getBoundingClientRect()]) {
+        bottom = Math.max(bottom, b.bottom - heroRect.top);
+      }
+      right = Math.max(right, range.getBoundingClientRect().right - heroRect.left);
+    }
+    return { right, bottom };
+  }
+
+  const isWide = (right) => W - right >= W * 0.4;
+
+  function geometry() {
+    const { right, bottom } = copyBounds();
+    if (isWide(right)) {
+      P0 = { x: right + 56, y: H * 0.92 };
+      P2 = { x: W * 0.9, y: H * 0.7 };
+      C = { x: (P0.x + P2.x) / 2 + 30, y: H * 0.06 };
+    } else {
+      P0 = { x: W * 0.06, y: H * 0.95 };
+      P2 = { x: W * 0.8, y: H * 0.86 };
+      const apexY = bottom + (H - bottom) * 0.28;
+      C = { x: W * 0.5, y: 2 * apexY - 0.5 * (P0.y + P2.y) };
+    }
+    const apex = point(0.5);
+    drop = { x: apex.x, y: apex.y + Math.min(170, (Math.max(P0.y, P2.y) - apex.y) * 0.6) };
+  }
+
+  function point(t) {
+    const u = 1 - t;
+    return { x: u * u * P0.x + 2 * u * t * C.x + t * t * P2.x, y: u * u * P0.y + 2 * u * t * C.y + t * t * P2.y };
+  }
+
+  function tangent(t) {
+    const x = 2 * (1 - t) * (C.x - P0.x) + 2 * t * (P2.x - C.x);
+    const y = 2 * (1 - t) * (C.y - P0.y) + 2 * t * (P2.y - C.y);
+    const len = Math.hypot(x, y) || 1;
+    return { x: x / len, y: y / len };
+  }
+
+  const gaugeRadius = () => Math.max(34, Math.min(W, H) * 0.06);
+
+  // Annotations are placed by trying candidate spots around each anchor and
+  // taking the first that clears the copy, the other annotations, the gauge,
+  // the markers and the drawn trajectory. Fixed offsets can't survive every
+  // viewport; if nothing fits, the annotation is hidden rather than overlap.
+  function placeLabels() {
+    const heroRect = hero.getBoundingClientRect();
+    const r = gaugeRadius();
+    const pad = 10;
+    const box = (l, t, w, h) => ({ l, t, r: l + w, b: t + h });
+    const intersects = (a, o) => !(a.r <= o.l || o.r <= a.l || a.b <= o.t || o.b <= a.t);
+
+    const blockers = [];
+    for (const el of document.querySelectorAll(".topbar .wrap > *, .hero .eyebrow, .hero h1, .hero .lede, .hero-actions > *")) {
+      const b = el.getBoundingClientRect();
+      blockers.push(box(b.left - heroRect.left - pad, b.top - heroRect.top - pad, b.width + pad * 2, b.height + pad * 2));
+    }
+    blockers.push(box(P2.x - r - 12, P2.y - r - 22, r * 2 + 44, r * 2 + 34)); // gauge + its 5x mark
+    blockers.push(box(P0.x - 14, P0.y - 14, 28, 28));
+    blockers.push(box(drop.x - 8, drop.y - 8, 16, 16));
+
+    const strokePts = [];
+    for (let i = 0; i <= 120; i++) strokePts.push(point(i / 120));
+    const apex = point(0.5);
+    for (let i = 0; i <= 24; i++) strokePts.push({ x: apex.x, y: apex.y + ((drop.y - apex.y) * i) / 24 });
+    const crossesStroke = (b) => strokePts.some((q) => q.x > b.l - 6 && q.x < b.r + 6 && q.y > b.t - 6 && q.y < b.b + 6);
+
+    const along = (t, dx, dy) => { const q = point(t); return [q.x + dx, q.y + dy]; };
+    const candidates = {
+      orb: (w, h) => [
+        [P2.x - w + 6, P2.y + r + 16], [P2.x - 6, P2.y + r + 16],
+        [P2.x - r - 22 - w, P2.y - h / 2], [P2.x - w - r * 0.4, P2.y - r - 26 - h],
+        [P2.x + r + 34, P2.y - h / 2], [P2.x - w / 2, P2.y + r + 16],
+      ],
+      buyback: (w, h) => [
+        [drop.x + 16, drop.y - h / 2], [drop.x - 16 - w, drop.y - h / 2],
+        [drop.x - w / 2, drop.y + 16], [drop.x + 16, drop.y + 10], [drop.x - w - 12, drop.y + 12],
+        along(0.5, 18, 26), along(0.5, -w - 18, 26), along(0.42, 16, 20), along(0.58, -w - 16, 20),
+      ],
+      source: (w, h) => [
+        [P0.x + 20, P0.y - h - 20], along(0.2, 18, 14), [P0.x + 24, P0.y - h / 2],
+        along(0.12, 16, 8), along(0.28, 18, 18), along(0.2, -w - 18, -h - 6), [P0.x + 20, P0.y - h - 60],
+      ],
+    };
+
+    // A label hidden by a previous pass measures 0x0 and would "fit"
+    // anywhere; un-hide everything before measuring. Narrow screens get the
+    // short wording.
+    const compact = W < 560;
+    labels.forEach((el) => {
+      el.style.display = "";
+      const strong = el.querySelector("strong");
+      if (!strong.dataset.full) strong.dataset.full = strong.textContent;
+      strong.textContent = compact ? strong.dataset.short : strong.dataset.full;
+    });
+
+    for (const anchor of ["orb", "buyback", "source"]) {
+      const el = labels.find((l) => l.dataset.anchor === anchor);
+      if (!el) continue;
+      const w = el.offsetWidth, h = el.offsetHeight;
+      const spot = candidates[anchor](w, h)
+        .map(([x, y]) => box(x, y, w, h))
+        .find((b) => b.l >= 8 && b.t >= 8 && b.r <= W - 8 && b.b <= H - 8
+          && !blockers.some((o) => intersects(b, o)) && !crossesStroke(b));
+      if (spot) {
+        el.style.left = `${spot.l}px`;
+        el.style.top = `${spot.t}px`;
+        el.style.display = "";
+        blockers.push(box(spot.l - pad, spot.t - pad, w + pad * 2, h + pad * 2));
+      } else {
+        el.style.display = "none";
+      }
+    }
+  }
+
+  function resize() {
+    hero.style.minHeight = "";
+    W = hero.getBoundingClientRect().width;
+    const { right, bottom } = copyBounds();
+    const heroHeight = hero.getBoundingClientRect().height;
+    if (!isWide(right) && heroHeight - bottom < 340) hero.style.minHeight = `${Math.ceil(bottom + 340)}px`;
+
+    const rect = hero.getBoundingClientRect();
+    W = rect.width; H = rect.height;
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.round(W * dpr);
+    canvas.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    geometry();
+    placeLabels();
+    if (!running) render(performance.now());
+  }
+
+  function drawHorizon() {
+    const cx = W * 0.5, cy = H * 1.02, base = Math.max(W, H) * 0.24;
+    ctx.lineWidth = 1;
+    for (let i = 0; i < 5; i++) {
+      ctx.strokeStyle = rgba(ETHER, 0.05 - i * 0.008);
+      ctx.beginPath();
+      ctx.arc(cx, cy, base + i * base * 0.36, Math.PI, Math.PI * 2);
+      ctx.stroke();
+    }
+  }
+
+  function drawTrajectory() {
+    const steps = 160, end = Math.floor(steps * drawProgress);
+    ctx.lineWidth = 1.25;
+    ctx.lineCap = "round";
+    for (let i = 0; i < end; i++) {
+      const a = point(i / steps), b = point((i + 1) / steps);
+      ctx.strokeStyle = rgba(mix(GOLD, SKY, i / steps), 0.85);
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    }
+    // Tick marks along the trajectory, major every sixth.
+    const ticks = 36;
+    for (let i = 1; i < ticks; i++) {
+      const t = i / ticks;
+      if (t > drawProgress) break;
+      const p = point(t), d = tangent(t), major = i % 6 === 0, len = major ? 7 : 3.5;
+      ctx.strokeStyle = rgba(ETHER, major ? 0.35 : 0.18);
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(p.x + d.y * len, p.y - d.x * len);
+      ctx.lineTo(p.x - d.y * len, p.y + d.x * len);
+      ctx.stroke();
+    }
+  }
+
+  function drawSplitGuide() {
+    const apex = point(0.5);
+    ctx.setLineDash([2, 5]);
+    ctx.strokeStyle = rgba(GOLD, 0.45);
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(apex.x, apex.y + 6); ctx.lineTo(drop.x, drop.y); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = rgba(GOLD, 0.95);
+    ctx.fillRect(drop.x - 3, drop.y - 3, 6, 6);
+  }
+
+  function drawSource() {
+    ctx.strokeStyle = rgba(GOLD, 0.5 + sourcePulse * 0.4);
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(P0.x, P0.y, 7 + sourcePulse * 3, 0, Math.PI * 2); ctx.stroke();
+    ctx.fillStyle = rgba(GOLD, 1);
+    ctx.beginPath(); ctx.arc(P0.x, P0.y, 2.5, 0, Math.PI * 2); ctx.fill();
+  }
+
+  function drawGauge(now) {
+    const r = gaugeRadius();
+    const halo = ctx.createRadialGradient(P2.x, P2.y, 0, P2.x, P2.y, r * 2.2);
+    halo.addColorStop(0, rgba(SKY, 0.12 + gaugePulse * 0.12));
+    halo.addColorStop(1, rgba(SKY, 0));
+    ctx.fillStyle = halo;
+    ctx.beginPath(); ctx.arc(P2.x, P2.y, r * 2.2, 0, Math.PI * 2); ctx.fill();
+
+    for (let i = 1; i <= LEVERAGE; i++) {
+      const rr = (r * i) / LEVERAGE;
+      ctx.strokeStyle = rgba(SKY, 0.16 + (i / LEVERAGE) * 0.3);
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(P2.x, P2.y, rr, 0, Math.PI * 2); ctx.stroke();
+    }
+    // One mark for the outer ring only; inner rings are too close to label.
+    ctx.font = `10px "Geist Mono", monospace`;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "bottom";
+    ctx.fillStyle = rgba(ETHER, 0.6);
+    ctx.fillText(`${LEVERAGE}x`, P2.x + r * 0.72 + 4, P2.y - r * 0.72 - 2);
+    // A sweep on the outer ring: the keeper holding target leverage.
+    const sweep = reduceMotion ? -Math.PI / 2 : now / 1400;
+    ctx.strokeStyle = rgba(SKY, 0.9);
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(P2.x, P2.y, r, sweep, sweep + 0.55); ctx.stroke();
+
+    ctx.fillStyle = rgba(ETHER, 0.95);
+    ctx.beginPath(); ctx.arc(P2.x, P2.y, 3 + gaugePulse * 1.5, 0, Math.PI * 2); ctx.fill();
+  }
+
+  function render(now) {
+    ctx.clearRect(0, 0, W, H);
+    drawHorizon();
+    drawTrajectory();
+    drawSource();
+    if (drawProgress < 1) return;
+
+    drawSplitGuide();
+    for (const p of particles) {
+      const color = mix(GOLD, SKY, p.t);
+      const tail = Math.max(0, p.t - 0.035);
+      const a = point(tail), b = point(p.t);
+      const grad = ctx.createLinearGradient(a.x, a.y, b.x, b.y);
+      grad.addColorStop(0, rgba(color, 0));
+      grad.addColorStop(1, rgba(color, 0.7));
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+      ctx.fillStyle = rgba(color, 1);
+      ctx.beginPath(); ctx.arc(b.x, b.y, 1.8, 0, Math.PI * 2); ctx.fill();
+    }
+    for (const f of falling) {
+      ctx.fillStyle = rgba(GOLD, f.life);
+      ctx.beginPath(); ctx.arc(f.x, f.y, 1.8, 0, Math.PI * 2); ctx.fill();
+    }
+    drawGauge(now);
+  }
+
+  function step(now) {
+    if (!running) return;
+    const dt = Math.min(0.05, (now - (lastFrame || now)) / 1000);
+    lastFrame = now;
+    if (startTime === null) startTime = now;
+
+    if (drawProgress < 1) {
+      const x = Math.min(1, (now - startTime) / 2200);
+      drawProgress = x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+      if (drawProgress >= 1) labels.forEach((el) => el.classList.add("is-visible"));
+    } else {
+      if (now - lastSpawn > 520 + Math.random() * 380) {
+        particles.push({ t: 0, speed: 0.16 + Math.random() * 0.03, buyback: Math.random() < 0.2 });
+        lastSpawn = now;
+        sourcePulse = 1;
+      }
+      for (const p of particles) {
+        const before = p.t;
+        p.t += p.speed * dt;
+        if (p.buyback && before < 0.5 && p.t >= 0.5) {
+          const apex = point(0.5);
+          falling.push({ x: apex.x, y: apex.y, life: 1 });
+          p.done = true;
+        }
+        if (p.t >= 1) { p.done = true; gaugePulse = 1; }
+      }
+      particles = particles.filter((p) => !p.done);
+      for (const f of falling) { f.y += 90 * dt; if (f.y >= drop.y) f.life -= 2.5 * dt; }
+      falling = falling.filter((f) => f.life > 0);
+      gaugePulse = Math.max(0, gaugePulse - dt * 1.4);
+      sourcePulse = Math.max(0, sourcePulse - dt * 2);
+    }
+    render(now);
+    requestAnimationFrame(step);
+  }
+
+  function setRunning(next) {
+    if (reduceMotion || next === running) return;
+    running = next;
+    if (running) { lastFrame = 0; requestAnimationFrame(step); }
+  }
+
+  resize();
+  window.addEventListener("resize", resize);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(resize);
+
+  if (reduceMotion) {
+    particles = [0.18, 0.36, 0.66, 0.84].map((t) => ({ t }));
+    labels.forEach((el) => el.classList.add("is-visible"));
+    render(0);
+  } else {
+    new IntersectionObserver(([entry]) => setRunning(entry.isIntersecting)).observe(hero);
+    document.addEventListener("visibilitychange", () => setRunning(!document.hidden));
+  }
+
+  // ---------------------------------------------------------------------
+  // Keeper log: lines type in once, when the terminal scrolls into view.
+  // Without JS or with reduced motion, every line is simply shown.
+  // ---------------------------------------------------------------------
+  const log = document.getElementById("log");
+  if (!reduceMotion) {
+    const lines = [...log.children];
+    lines.forEach((li) => (li.hidden = true));
+    const caret = document.createElement("span");
+    caret.className = "caret";
+    caret.innerHTML = "&nbsp;";
+    let played = false;
+    new IntersectionObserver(([entry], observer) => {
+      if (!entry.isIntersecting || played) return;
+      played = true;
+      observer.disconnect();
+      lines.forEach((li, i) => {
+        setTimeout(() => { li.hidden = false; li.lastElementChild.appendChild(caret); }, 350 + i * 520);
+      });
+    }, { threshold: 0.4 }).observe(log);
+  }
+})();
+</script>
 </body>
 </html>
