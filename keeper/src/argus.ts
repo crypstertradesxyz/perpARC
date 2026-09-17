@@ -61,11 +61,12 @@ const revenueSplitterAbi = [
     type: "function",
     name: "claim",
     stateMutability: "nonpayable",
-    inputs: [
-      { name: "to", type: "address" },
-      { name: "quoteAsset", type: "address" },
+    inputs: [{ name: "account", type: "address" }],
+    outputs: [
+      { name: "creatorReward", type: "uint256" },
+      { name: "dividendReward", type: "uint256" },
+      { name: "extraReward", type: "uint256" },
     ],
-    outputs: [],
   },
 ] as const;
 
@@ -73,15 +74,17 @@ const arcPublicClient = createPublicClient({ chain: arc, transport: http(config.
 
 export type ClaimAttemptResult =
   | { outcome: "claimed" }
+  | { outcome: "nothing-to-claim" }
   | { outcome: "not-authorized" } // this account isn't Argus's `creator` for this launch
   | { outcome: "not-launched-on-argus" } // token has no Portal.launches() record
   | { outcome: "reverted"; reason: string }
   | { outcome: "dry-run" };
 
 /**
- * Reads the token's Argus launch record and, only if `account` is already
- * the recorded `creator` (see header -- usually false under this model),
- * attempts claim(). Never throws; every failure mode is a tagged result.
+ * Reads the token's Argus launch record and attempts RevenueSplitter.claim(account.address).
+ * Verified on Arc mainnet (2026-09-17 against live Portal 0xB021Be536808f551b31789422Fd28a6c9c6e97Da):
+ * - Selector is `0x1e83409a` -> `claim(address account)`
+ * - Reverts with `0x969bf728` (`NothingToClaim()`) if no fees have accrued.
  */
 export async function tryClaimArgusFees(account: Account, tokenAddress: Address): Promise<ClaimAttemptResult> {
   if (!config.argusPortalAddress) return { outcome: "not-launched-on-argus" };
@@ -99,15 +102,18 @@ export async function tryClaimArgusFees(account: Account, tokenAddress: Address)
   }
 
   const [creator, , , , , splitter, , , , , quoteAsset] = record;
-  if (splitter === "0x0000000000000000000000000000000000000000") {
+  if (!splitter || splitter === "0x0000000000000000000000000000000000000000") {
     return { outcome: "not-launched-on-argus" };
   }
+
+  // If this account is not the creator, claim(account) will find 0 accrued creator funds
+  // unless Argus was configured to route rewards to this account.
   if (creator.toLowerCase() !== account.address.toLowerCase()) {
     return { outcome: "not-authorized" };
   }
 
   if (config.dryRun) {
-    console.log(`[keeper] DRY_RUN: would call RevenueSplitter.claim(${account.address}, ${quoteAsset}) for ${tokenAddress}`);
+    console.log(`[keeper] DRY_RUN: would call Argus RevenueSplitter.claim(${account.address}) for ${tokenAddress}`);
     return { outcome: "dry-run" };
   }
 
@@ -117,11 +123,15 @@ export async function tryClaimArgusFees(account: Account, tokenAddress: Address)
       address: splitter,
       abi: revenueSplitterAbi,
       functionName: "claim",
-      args: [account.address, quoteAsset],
+      args: [account.address],
     });
     await arcPublicClient.waitForTransactionReceipt({ hash, confirmations: config.confirmations });
     return { outcome: "claimed" };
   } catch (err) {
-    return { outcome: "reverted", reason: err instanceof Error ? err.message : String(err) };
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.includes("0x969bf728") || msg.includes("NothingToClaim")) {
+      return { outcome: "nothing-to-claim" };
+    }
+    return { outcome: "reverted", reason: msg };
   }
 }
