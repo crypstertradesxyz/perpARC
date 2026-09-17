@@ -2,6 +2,24 @@
 
 Platform that launches tokens on **Arc** (Circle's USDC-native L1, chain id `5042`, mainnet live 2026-09-16) through the third-party launchpad **Argus** (argus.world), redirects a slice of every launch's Argus creator-fee share to us, and uses it to fund an isolated leveraged position on Hyperliquid per token — the same core model as [[Longshot]] (Robinhood Chain, own launch contracts), adapted for a launchpad we don't own.
 
+## Launchpad pivot: Argus -> Coinbarrel (2026-09-17)
+
+Everything below that references Argus is superseded -- PerpArc now integrates with **Coinbarrel** (docs.coinbarrel.com), not Argus. Argus was dropped because its real mainnet contract is unverified on Arc's official explorer and its docs sit behind a human-verification wall, so none of its fee mechanics could actually be confirmed.
+
+### Coinbarrel verification (on-chain, Arc mainnet)
+
+Checked with read-only `eth_call` simulations against real token `0x8e7a98377ea1dc2783a85cbd7370f76901eebf13` and Coinbarrel's Arc fee router `0xa80d97a8090d68f92a012194c8ff33867e85bef0`. Re-run with `keeper/scripts/verify-coinbarrel-redirect.sh`. The fee-router ABI (published under Coinbarrel's Robinhood integrations path) matches Arc's live implementation: `launcher()` returns the documented Arc launcher, and reverts decode against its custom-error list.
+
+| Call | Result | Meaning |
+|---|---|---|
+| `pendingRevenue(token, creator)` | 33.59 USDC (returned as `3.358e19`) | Creator revenue accrues to an entitled account, in **18-decimal native** units |
+| `proposeRevenueController(token, X)` from the **creator** | reverts `NotRevenueRotationAdmin()` | **The creator cannot redirect their own revenue** |
+| `proposeRevenueController(token, X)` from `revenueRotationAdmin` (`0x30e4...CddBa`) | succeeds | Only Coinbarrel's platform admin can rotate a token's revenue destination |
+| `settleAndPayoutCreator(token, X)` from the creator | reverts `NothingToClaim()` | The payout `account` is who is owed, not a free destination |
+| `settleAndPayoutCreator(token, creator)` from a stranger | succeeds | Payout is permissionless, but always pays the entitled account |
+
+**Consequence:** "creator launches, then redirects fees to a PerpArc wallet" is **not self-service** on Coinbarrel. Revenue reaches a PerpArc wallet only if (a) Coinbarrel's admin proposes our wallet as controller and our keeper accepts (`acceptRevenueController`), (b) the wallet is set as a revenue recipient in the launch policy at launch time (documented, not yet verified on-chain), or (c) the creator manually forwards what they receive.
+
 ## Core concept
 
 We don't build a launchpad, an AMM, or a token contract. Argus already provides all of that. We build:
