@@ -1,4 +1,6 @@
+import re
 
+css = """
 :root {
   --night: #02040a;
   --surface: #0a0e17;
@@ -1452,4 +1454,11 @@ footer .wrap { display: flex; justify-content: space-between; gap: 1rem; flex-wr
 @media (max-width: 980px) {
   .hero-split-grid { grid-template-columns: 1fr; gap: 4rem; padding-top: 8rem; }
 }
+
+"""
+
+with open("/Users/aske/Incentivise/site/landing.css", "w") as f:
+    f.write(css)
+
+print("CSS generated.")
 
