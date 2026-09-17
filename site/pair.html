@@ -538,6 +538,13 @@
   });
 
   updateMetrics();
+
+  // Pre-fill from URL query param if present (e.g. from Hero quick-pair)
+  const urlAddr = new URLSearchParams(window.location.search).get("address");
+  if (urlAddr && tokenInput) {
+    tokenInput.value = urlAddr;
+    tokenInput.dispatchEvent(new Event("input"));
+  }
 })();
 </script>
 

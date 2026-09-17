@@ -1504,5 +1504,290 @@ footer .wrap { display: flex; justify-content: space-between; gap: 1rem; flex-wr
   width: 100%;
 }
 
+/* =========================================================================
+   Sendmoney.cash Inspired Showcase Components
+   ========================================================================= */
+
+.hero-split-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 3.5rem;
+  align-items: center;
+  padding: clamp(6.5rem, 14vh, 9rem) 0 4rem;
+  position: relative;
+  z-index: 2;
+}
+
+@media (max-width: 980px) {
+  .hero-split-grid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    padding-top: 6rem;
+  }
+}
+
+/* Platform pills row */
+.platform-scroll-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  margin-top: 1.5rem;
+  scrollbar-width: none;
+}
+.platform-scroll-row::-webkit-scrollbar { display: none; }
+
+.platform-pill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(22, 40, 74, 0.5);
+  border: 1px solid var(--hairline);
+  padding: 0.45rem 0.85rem;
+  border-radius: 9999px;
+  font-size: 0.82rem;
+  font-family: var(--mono);
+  color: var(--bone);
+  white-space: nowrap;
+}
+
+.badge-live {
+  background: rgba(86, 211, 100, 0.15);
+  color: #56d364;
+  border: 1px solid rgba(86, 211, 100, 0.3);
+  padding: 0.1rem 0.4rem;
+  border-radius: 9999px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Hero Launch Form (sendmoney-style) */
+.hero-launch-bar {
+  display: flex;
+  background: rgba(22, 40, 74, 0.75);
+  border: 1px solid rgba(233, 161, 63, 0.35);
+  padding: 0.4rem;
+  border-radius: 14px;
+  box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.5), 0 0 20px -5px rgba(233, 161, 63, 0.15);
+  margin-top: 1.8rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.hero-launch-bar:focus-within {
+  border-color: var(--sodium);
+  box-shadow: 0 0 0 3px rgba(233, 161, 63, 0.25), 0 20px 40px -10px rgba(0,0,0,0.6);
+}
+
+.hero-launch-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--bone);
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  padding: 0.75rem 1rem;
+  outline: none;
+}
+
+.hero-launch-input::placeholder {
+  color: var(--bone-dim);
+  font-size: 0.88rem;
+}
+
+.hero-launch-btn {
+  background: var(--sodium);
+  color: var(--night);
+  border: none;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.92rem;
+  padding: 0 1.4rem;
+  border-radius: 10px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.15s, transform 0.1s;
+  white-space: nowrap;
+}
+
+.hero-launch-btn:hover {
+  background: var(--sand);
+}
+
+.hero-launch-btn:active {
+  transform: scale(0.97);
+}
+
+/* Micro Stat Strip */
+.hero-stat-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  background: rgba(14, 27, 54, 0.55);
+  margin-top: 1.75rem;
+  overflow: hidden;
+}
+
+.stat-strip-item {
+  padding: 0.85rem 1rem;
+  border-right: 1px solid var(--hairline);
+}
+.stat-strip-item:last-child { border-right: none; }
+
+.stat-strip-item strong {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--sand);
+  margin-bottom: 0.2rem;
+  font-family: var(--mono);
+}
+
+.stat-strip-item span {
+  font-size: 0.82rem;
+  color: var(--bone-dim);
+}
+
+/* Right Column: Visual Pipeline Preview Card */
+.pipeline-preview-card {
+  background: rgba(22, 40, 74, 0.6);
+  border: 1px solid var(--hairline);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 24px;
+  padding: 1.75rem;
+  position: relative;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.65);
+}
+
+.preview-top-badge {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  font-family: var(--mono);
+  color: var(--bone-dim);
+  border-bottom: 1px solid var(--hairline);
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.preview-token-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(14, 27, 54, 0.6);
+  border: 1px solid var(--hairline);
+  padding: 1rem 1.25rem;
+  border-radius: 14px;
+}
+
+.send-flow-rail {
+  position: relative;
+  width: 2px;
+  height: 28px;
+  background: var(--hairline);
+  margin: 0.4rem auto;
+}
+
+.send-flow-rail::after {
+  content: "↓";
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.75rem;
+  color: var(--bone-dim);
+}
+
+.flow-pulse-pill {
+  margin: 0 auto;
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: rgba(233, 161, 63, 0.12);
+  border: 1px solid rgba(233, 161, 63, 0.3);
+  padding: 0.5rem 1.15rem;
+  border-radius: 9999px;
+  font-family: var(--mono);
+  font-size: 0.88rem;
+  color: var(--sand);
+  font-weight: 500;
+}
+
+.preview-split-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+.preview-split-box {
+  background: rgba(14, 27, 54, 0.6);
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+}
+
+.preview-split-box.highlight {
+  border-color: rgba(172, 198, 233, 0.4);
+  background: rgba(27, 49, 88, 0.35);
+}
+
+/* Floating Tilted Cards */
+.tilted-float-left {
+  position: absolute;
+  top: -12px;
+  left: -18px;
+  background: rgba(14, 27, 54, 0.92);
+  border: 1px solid rgba(233, 161, 63, 0.35);
+  border-radius: 10px;
+  padding: 0.5rem 0.85rem;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--sand);
+  box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.6);
+  transform: rotate(-5deg);
+  z-index: 3;
+  animation: floatTiltLeft 6s ease-in-out infinite alternate;
+}
+
+.tilted-float-right {
+  position: absolute;
+  bottom: -14px;
+  right: -14px;
+  background: rgba(14, 27, 54, 0.92);
+  border: 1px solid rgba(86, 211, 100, 0.35);
+  border-radius: 10px;
+  padding: 0.5rem 0.85rem;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: #56d364;
+  box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.6);
+  transform: rotate(4deg);
+  z-index: 3;
+  animation: floatTiltRight 7s ease-in-out infinite alternate;
+}
+
+@keyframes floatTiltLeft {
+  0% { transform: translateY(0) rotate(-5deg); }
+  100% { transform: translateY(-8px) rotate(-3deg); }
+}
+
+@keyframes floatTiltRight {
+  0% { transform: translateY(0) rotate(4deg); }
+  100% { transform: translateY(-6px) rotate(6deg); }
+}
+
+
 
 

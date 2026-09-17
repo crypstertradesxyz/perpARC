@@ -29,23 +29,126 @@
 </header>
 
 <main class="page-wrapper">
-  <section class="hero" id="hero" aria-labelledby="hero-title">
-    <canvas id="arc" aria-hidden="true"></canvas>
+  <section class="hero" id="hero" aria-labelledby="hero-title" style="min-height: 88vh; align-items: center;">
+    <canvas id="arc" aria-hidden="true" style="opacity: 0.38;"></canvas>
 
-    <span class="arc-label warm" data-anchor="source">Fee in<strong data-short="Every trade">Every trade on your pool</strong></span>
-    <span class="arc-label warm" data-anchor="buyback">Split<strong data-short="20% buyback">20% to buyback</strong></span>
-    <span class="arc-label cool" data-anchor="orb">Position<strong data-short="80%, BTC 5x">80% to BTC long, 5x</strong></span>
+    <div class="wrap hero-split-grid">
+      <!-- Left Column: Copy, Ecosystem Live Row, Hero Launch Bar -->
+      <div class="hero-copy" style="padding-top: 0;">
+        <p class="eyebrow drop-in drop-d1">Built on Arc &middot; 5042</p>
+        <h1 id="hero-title" class="drop-in drop-d2" style="font-size: clamp(2.5rem, 5.5vw, 4.75rem); line-height: 1.04; margin-bottom: 1.2rem;">
+          Launch on Coinbarrel.<br>
+          <span style="color:var(--sodium);">PERP the fees.</span>
+        </h1>
+        <p class="lede drop-in drop-d3" style="max-width: 44ch; font-size: 1.15rem; margin-bottom: 0;">
+          One token. Every trade. A keeper redirects your pool fees into autonomous buybacks and leveraged Hyperliquid perpetuals.
+        </p>
 
-    <div class="wrap hero-copy">
-      <p class="eyebrow drop-in drop-d1">Built on Arc</p>
-      <h1 id="hero-title" class="drop-in drop-d2">Your fees, leveraged.</h1>
-      <p class="lede drop-in drop-d3">
-        Launch on <strong>Coinbarrel</strong> with a PerpArc wallet as your revenue controller. Every trade's fee
-        feeds a live, leveraged position on <strong>Hyperliquid</strong>, run by a keeper that never sleeps.
-      </p>
-      <div class="hero-actions drop-in drop-d4">
-        <a class="button-primary" href="pair.html">Get your wallet</a>
-        <a class="button-quiet" href="#how">See how it works</a>
+        <!-- Live Platform Row (sendmoney style) -->
+        <div class="platform-scroll-row drop-in drop-d3">
+          <div class="platform-pill">
+            <span class="dot" style="width:5px; height:5px;"></span>
+            <span>Arc Mainnet</span>
+            <span class="badge-live">Live</span>
+          </div>
+          <div class="platform-pill">
+            <span class="dot" style="width:5px; height:5px; background:var(--sand);"></span>
+            <span>Coinbarrel</span>
+            <span class="badge-live">Live</span>
+          </div>
+          <div class="platform-pill">
+            <span class="dot" style="width:5px; height:5px; background:var(--sodium);"></span>
+            <span>Circle CCTP</span>
+            <span class="badge-live">Live</span>
+          </div>
+          <div class="platform-pill">
+            <span class="dot" style="width:5px; height:5px; background:var(--cobalt);"></span>
+            <span>Hyperliquid</span>
+            <span class="badge-live">Live</span>
+          </div>
+        </div>
+
+        <!-- Hero Instant Launch / Pair Bar -->
+        <form class="hero-launch-bar drop-in drop-d4" id="hero-quick-pair-form" onsubmit="event.preventDefault(); const addr = document.getElementById('hero-token-input').value.trim(); window.location.href = addr ? 'pair.html?address=' + encodeURIComponent(addr) : 'pair.html';">
+          <input 
+            type="text" 
+            id="hero-token-input" 
+            class="hero-launch-input" 
+            placeholder="Paste Arc token address (0x...) or symbol" 
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <button type="submit" class="hero-launch-btn">
+            Pair Now &rarr;
+          </button>
+        </form>
+
+        <!-- Micro Stat Strip -->
+        <div class="hero-stat-strip drop-in drop-d5">
+          <div class="stat-strip-item">
+            <strong>Routing</strong>
+            <span>80% / 20% Split</span>
+          </div>
+          <div class="stat-strip-item">
+            <strong>Bridging</strong>
+            <span>Circle CCTP v2</span>
+          </div>
+          <div class="stat-strip-item">
+            <strong>Execution</strong>
+            <span>Autonomous Keeper</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Interactive Visual Pipeline Card -->
+      <div class="pipeline-preview-card spotlight-card drop-in drop-d4">
+        <div class="tilted-float-left">
+          <span>⚡ BTC Long 5x Margin Active</span>
+        </div>
+        <div class="tilted-float-right">
+          <span>✓ CCTP Attestation Confirmed</span>
+        </div>
+
+        <div class="preview-top-badge">
+          <span><span class="radar-dot" style="margin-right: 6px;"></span>Product Preview</span>
+          <span>Verified Coinbarrel Mechanism</span>
+        </div>
+
+        <div class="preview-token-row">
+          <div class="token-badge-icon" style="width: 44px; height: 44px; font-size: 1.1rem; border-radius: 10px;">$</div>
+          <div>
+            <div style="font-weight: 600; color: var(--bone); font-size: 1.15rem;">$GADGET &middot; Coinbarrel Pool</div>
+            <div style="font-family: var(--mono); font-size: 0.82rem; color: var(--bone-dim);">Arc Mainnet &middot; 24h Vol: $142,500 USDC</div>
+          </div>
+        </div>
+
+        <div class="send-flow-rail"></div>
+
+        <div class="flow-pulse-pill">
+          <span class="radar-dot" style="background:var(--sand);"></span>
+          <span>1,425 USDC Fees Captured</span>
+        </div>
+
+        <div class="send-flow-rail"></div>
+
+        <div class="preview-split-grid">
+          <div class="preview-split-box highlight">
+            <div style="font-family: var(--mono); font-size: 1.1rem; font-weight: 600; color: var(--cobalt);">
+              1,140 USDC (80%)
+            </div>
+            <div style="font-size: 0.78rem; color: var(--bone-dim); margin-top: 0.25rem;">
+              &rarr; Hyperliquid BTC 5x Margin
+            </div>
+          </div>
+          <div class="preview-split-box">
+            <div style="font-family: var(--mono); font-size: 1.1rem; font-weight: 600; color: var(--sodium);">
+              285 USDC (20%)
+            </div>
+            <div style="font-size: 0.78rem; color: var(--bone-dim); margin-top: 0.25rem;">
+              &rarr; Token Buyback Vault
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
