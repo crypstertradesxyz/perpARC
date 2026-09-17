@@ -155,8 +155,27 @@
               <div class="asset-chip selected" data-asset="ETH">ETH</div>
               <div class="asset-chip" data-asset="BTC">BTC</div>
               <div class="asset-chip" data-asset="SOL">SOL</div>
-              <div class="asset-chip" data-asset="ARB">ARB</div>
               <div class="asset-chip" data-asset="HYPE">HYPE</div>
+              <div class="asset-chip" data-asset="ARB">ARB</div>
+              <div class="asset-chip" data-asset="DOGE">DOGE</div>
+              <div class="asset-chip" data-asset="SUI">SUI</div>
+              <div class="asset-chip" data-asset="AVAX">AVAX</div>
+            </div>
+
+            <div class="custom-asset-wrap" style="margin-top: 0.85rem;">
+              <input 
+                type="text" 
+                id="custom-asset-input" 
+                class="custom-asset-input" 
+                placeholder="Or type any Hyperliquid perp (e.g. PEPE, TIA, LINK, WIF)..." 
+                maxlength="12"
+                autocomplete="off"
+                spellcheck="false"
+                style="width: 100%; padding: 0.75rem 1rem; background: rgba(14,27,54,0.6); border: 1px solid var(--hairline); border-radius: 8px; color: var(--bone); font-family: var(--mono); font-size: 0.95rem; text-transform: uppercase; transition: border-color 0.2s ease;"
+              />
+              <span class="label-desc" style="margin-top: 0.4rem; font-size: 0.78rem;">
+                PerpArc supports <strong>all 150+ perpetual markets</strong> active on Hyperliquid L1.
+              </span>
             </div>
           </div>
 
@@ -439,14 +458,34 @@
   });
 
   // Asset selection
+  const customAssetInput = document.getElementById("custom-asset-input");
+
   assetChips.forEach(chip => {
     chip.addEventListener("click", () => {
       assetChips.forEach(c => c.classList.remove("selected"));
       chip.classList.add("selected");
       selectedAsset = chip.dataset.asset;
+      if (customAssetInput) customAssetInput.value = "";
       updateMetrics();
     });
   });
+
+  if (customAssetInput) {
+    customAssetInput.addEventListener("input", () => {
+      const val = customAssetInput.value.trim().toUpperCase();
+      if (val) {
+        assetChips.forEach(c => c.classList.remove("selected"));
+        selectedAsset = val;
+        const matchingChip = Array.from(assetChips).find(c => c.dataset.asset === val);
+        if (matchingChip) matchingChip.classList.add("selected");
+      } else {
+        selectedAsset = "ETH";
+        const defaultChip = Array.from(assetChips).find(c => c.dataset.asset === "ETH");
+        if (defaultChip) defaultChip.classList.add("selected");
+      }
+      updateMetrics();
+    });
+  }
 
   // Direction selection
   dirBtns.forEach(btn => {

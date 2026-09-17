@@ -538,6 +538,17 @@
       if (statTotal) {
         statTotal.textContent = `${allPairings.length} Paired`;
       }
+      // Dynamically populate asset filter options to support any perpetual market
+      if (assetSelect) {
+        const assets = new Set(["ETH", "BTC", "SOL", "HYPE", "ARB", "DOGE", "SUI", "AVAX"]);
+        allPairings.forEach(p => {
+          if (p.asset) assets.add(p.asset.toUpperCase());
+        });
+        const current = assetSelect.value;
+        assetSelect.innerHTML = `<option value="all">All Assets</option>` + 
+          Array.from(assets).map(a => `<option value="${a}">${a}</option>`).join("");
+        assetSelect.value = current || "all";
+      }
       renderPairings();
     } catch (e) {
       cardsContainer.innerHTML = `<div style="color: var(--rose); padding: 2rem;">Could not load active pairings from Arc.</div>`;
