@@ -6,10 +6,7 @@ broadcast/
 .env.*
 !.env.example
 
-# site: dev-only derivation secret and stored pairings -- never commit
-# either (see site/server.js "Derivation secret" and site/README.md
-# "Custody model").
+# site: dev-only derivation secret -- never commit
 site/.dev-secret
-site/data/
 keeper/dist/
 keeper/data/

@@ -18,7 +18,8 @@ import { createPublicClient, defineChain, encodePacked, isAddress, keccak256, ht
 import { privateKeyToAccount } from "viem/accounts";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const PORT = process.env.PORT || 8090;
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 8090;
+const HOST = process.env.HOST || "0.0.0.0";
 const SECRET_FILE = path.join(__dirname, ".dev-secret");
 const PAIRINGS_FILE = path.join(__dirname, "data", "pairings.json");
 const MAX_LEVERAGE = 50;
@@ -279,6 +280,6 @@ const server = createServer((req, res) => {
   handleStatic(req, res);
 });
 
-server.listen(PORT, "127.0.0.1", () => {
-  console.log(`[perparc-site] listening on http://127.0.0.1:${PORT}`);
+server.listen(PORT, HOST, () => {
+  console.log(`[perparc-site] listening on http://${HOST}:${PORT}`);
 });

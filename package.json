@@ -1,0 +1,17 @@
+{
+  "name": "perparc",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "PerpArc - Autonomous fee redirection into Hyperliquid perpetuals for Coinbarrel and Argus World tokens on Arc",
+  "scripts": {
+    "start": "node site/server.js",
+    "dev": "node site/server.js"
+  },
+  "dependencies": {
+    "viem": "^2.55.11"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

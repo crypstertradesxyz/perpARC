@@ -1,0 +1,74 @@
+{
+  "0x92bc59b005ea6a57e804af8233b8a2b2704d19d8": {
+    "tokenAddress": "0x92bc59b005ea6a57e804af8233b8a2b2704d19d8",
+    "tokenSymbol": "TR!PL",
+    "launchpad": "coinbarrel",
+    "asset": "ETH",
+    "isLong": true,
+    "leverage": 5,
+    "contact": "@tripl_arc",
+    "depositAddress": "0x63Ac62971A6F99BDE037f9974Cd390BF80F5de0b",
+    "createdAt": "2026-09-17T13:54:52.482Z",
+    "updatedAt": "2026-09-17T13:54:52.482Z"
+  },
+  "0x8e7a98377ea1dc2783a85cbd7370f76901eebf13": {
+    "tokenAddress": "0x8e7a98377ea1dc2783a85cbd7370f76901eebf13",
+    "tokenSymbol": "ARGTEST",
+    "launchpad": "argus",
+    "asset": "BTC",
+    "isLong": true,
+    "leverage": 10,
+    "contact": "@argusbuilder",
+    "depositAddress": "0xFf73863601De7C6677305648EbEC84ee7B6803C3",
+    "createdAt": "2026-09-17T16:19:26.975Z",
+    "updatedAt": "2026-09-17T16:19:26.975Z"
+  },
+  "0xf327c2326095d74374e54c0d96625f023c84a435": {
+    "tokenAddress": "0xf327c2326095d74374e54c0d96625f023c84a435",
+    "tokenSymbol": "MEMECAT",
+    "launchpad": "argus",
+    "asset": "SOL",
+    "isLong": true,
+    "leverage": 8,
+    "contact": "t.me/memecat_arc",
+    "depositAddress": "0x78D1E6F385973A6C717d9A2F8c39d48A229B0F15",
+    "createdAt": "2026-09-17T16:30:10.000Z",
+    "updatedAt": "2026-09-17T16:30:10.000Z"
+  },
+  "0x3f5c7128e14917415e3c153b0e12891f7c320d91": {
+    "tokenAddress": "0x3f5c7128e14917415e3c153b0e12891f7c320d91",
+    "tokenSymbol": "GADGET",
+    "launchpad": "coinbarrel",
+    "asset": "BTC",
+    "isLong": true,
+    "leverage": 5,
+    "contact": "@gadget_arc",
+    "depositAddress": "0x12Fa99c41E5D8456073fE8981448bDEe6293A7F1",
+    "createdAt": "2026-09-17T14:10:00.000Z",
+    "updatedAt": "2026-09-17T14:10:00.000Z"
+  },
+  "0x51ab8203f191b7d8b5c9284fa9e2617a4128f731": {
+    "tokenAddress": "0x51ab8203f191b7d8b5c9284fa9e2617a4128f731",
+    "tokenSymbol": "HYPERCAT",
+    "launchpad": "coinbarrel",
+    "asset": "HYPE",
+    "isLong": true,
+    "leverage": 5,
+    "contact": "@hypercat_coin",
+    "depositAddress": "0xa9B24D9821890eD6f9f30b9d7E7F0aCe26E40D18",
+    "createdAt": "2026-09-17T17:05:00.000Z",
+    "updatedAt": "2026-09-17T17:05:00.000Z"
+  },
+  "0x7c98124b89e3a61d8f5832a87b68903c7e092147": {
+    "tokenAddress": "0x7c98124b89e3a61d8f5832a87b68903c7e092147",
+    "tokenSymbol": "DOGESTAR",
+    "launchpad": "argus",
+    "asset": "DOGE",
+    "isLong": true,
+    "leverage": 10,
+    "contact": "t.me/dogestar_arc",
+    "depositAddress": "0x5A8E1b356dD2d2e26Ac3a99FeE2b801D39AbcF82",
+    "createdAt": "2026-09-17T17:20:00.000Z",
+    "updatedAt": "2026-09-17T17:20:00.000Z"
+  }
+}
