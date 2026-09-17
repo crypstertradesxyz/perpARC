@@ -1,104 +1,158 @@
 /**
- * PerpArc Seamless Page Transition Engine
+ * PerpArc Seamless Navigation & Slide Transition Engine
  * 
- * Provides smooth directional slide transitions between pages (Index <-> Explore <-> Pair)
- * without hard browser reloading, plus drop-in physics animations on arrival.
+ * Provides unified directional slide transitions between all tabs & routes:
+ * - Index (#keeper, #how, #risk) <-> Explore <-> Pair (Get your wallet)
+ * - Directional awareness (left/right sliding based on tab order)
+ * - Automatic smooth-scroll targeting when arriving with a hash (#keeper, #how, #risk)
+ * - In-page smooth gliding with active indicator tracking
+ * - Synchronized drop-in physics animations
  */
 
 (() => {
-  // Ordered route hierarchy to determine slide direction
-  const ROUTES = ["/index.html", "/explore.html", "/pair.html"];
-  
-  function getRouteIndex(path) {
-    const clean = (path.split("?")[0].split("#")[0] || "/index.html").replace(/\/$/, "/index.html");
-    const name = clean.endsWith("/") ? clean + "index.html" : clean;
-    for (let i = 0; i < ROUTES.length; i++) {
-      if (name.endsWith(ROUTES[i])) return i;
+  // Navigation tab order: Index (0) -> Explore (1) -> Pair (2)
+  const ROUTE_ORDER = {
+    "index": 0,
+    "keeper": 0,
+    "how": 0,
+    "risk": 0,
+    "explore": 1,
+    "pair": 2
+  };
+
+  function getRouteKey(urlStr) {
+    try {
+      const url = new URL(urlStr, window.location.origin);
+      const path = url.pathname.replace(/\/$/, "/index.html");
+      const hash = url.hash.replace("#", "");
+
+      if (path.endsWith("explore.html")) return "explore";
+      if (path.endsWith("pair.html")) return "pair";
+      if (hash === "keeper" || hash === "how" || hash === "risk") return hash;
+      return "index";
+    } catch {
+      return "index";
     }
-    return 0;
+  }
+
+  function getOrder(urlStr) {
+    const key = getRouteKey(urlStr);
+    return ROUTE_ORDER[key] ?? 0;
   }
 
   let isTransitioning = false;
 
   async function navigateTo(targetUrl, isPopState = false) {
     if (isTransitioning) return;
-    
-    const currentPath = window.location.pathname;
-    const targetPath = new URL(targetUrl, window.location.origin).pathname;
-    
-    const currentIndex = getRouteIndex(currentPath);
-    const targetIndex = getRouteIndex(targetPath);
 
-    // If clicking current page without anchor, scroll to top
-    if (currentIndex === targetIndex && targetUrl.indexOf("#") === -1 && !isPopState) {
+    const currentUrl = window.location.href;
+    const targetObj = new URL(targetUrl, window.location.origin);
+    const currentObj = new URL(currentUrl, window.location.origin);
+
+    const currentPath = currentObj.pathname.replace(/\/$/, "/index.html");
+    const targetPath = targetObj.pathname.replace(/\/$/, "/index.html");
+    const targetHash = targetObj.hash;
+
+    const currentKey = getRouteKey(currentUrl);
+    const targetKey = getRouteKey(targetUrl);
+
+    // Case 1: Same page anchor navigation (e.g. within index.html to #keeper, #how, #risk)
+    if (currentPath === targetPath && targetHash) {
+      const el = document.querySelector(targetHash);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth" });
+        if (!isPopState) {
+          window.history.pushState({ url: targetUrl }, document.title, targetUrl);
+        }
+        updateNavHighlight(targetKey);
+        pulseSection(el);
+        return;
+      }
+    }
+
+    // Case 2: Clicking active page without hash -> scroll top
+    if (currentPath === targetPath && !targetHash && !isPopState) {
       window.scrollTo({ top: 0, behavior: "smooth" });
+      updateNavHighlight(targetKey);
       return;
     }
 
-    // If anchor on same page, let browser handle smooth scroll
-    if (targetPath === currentPath && targetUrl.includes("#")) {
-      const hash = targetUrl.substring(targetUrl.indexOf("#"));
-      const el = document.querySelector(hash);
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth" });
-        return;
-      }
+    // Case 3: Page-to-page transition (e.g. Index <-> Explore <-> Pair)
+    isTransitioning = true;
+    const isForward = getOrder(targetUrl) >= getOrder(currentUrl);
+
+    // Stop active canvas animation on index if leaving
+    if (typeof window.__stopArcCanvas === "function") {
+      window.__stopArcCanvas();
     }
 
-    isTransitioning = true;
-    const isForward = targetIndex >= currentIndex;
+    const currentMain = document.querySelector("main");
+    if (!currentMain) {
+      window.location.href = targetUrl;
+      return;
+    }
 
     try {
-      // 1. Pre-fetch target HTML
-      const response = await fetch(targetUrl);
-      if (!response.ok) {
+      // 1. Fetch destination document
+      const res = await fetch(targetPath);
+      if (!res.ok) {
         window.location.href = targetUrl;
         return;
       }
-      const htmlText = await response.text();
+      const htmlText = await res.text();
       const parser = new DOMParser();
       const doc = parser.parseFromString(htmlText, "text/html");
 
       const newMain = doc.querySelector("main");
-      const currentMain = document.querySelector("main");
-
-      if (!newMain || !currentMain) {
+      if (!newMain) {
         window.location.href = targetUrl;
         return;
       }
 
-      // 2. Play slide exit animation on current page
+      // 2. Play slide exit animation
       const exitClass = isForward ? "slide-exit-to-left" : "slide-exit-to-right";
       const enterClass = isForward ? "slide-enter-from-right" : "slide-enter-from-left";
 
       currentMain.classList.remove("slide-enter-from-right", "slide-enter-from-left", "slide-exit-to-left", "slide-exit-to-right");
       currentMain.classList.add(exitClass);
 
-      await new Promise((r) => setTimeout(r, 340));
+      await new Promise(r => setTimeout(r, 340));
 
-      // 3. Swap main content and document metadata
+      // 3. Swap main content and document title
       currentMain.innerHTML = newMain.innerHTML;
       currentMain.className = newMain.className;
       document.title = doc.title;
 
-      // Update URL in browser history if not popstate
       if (!isPopState) {
         window.history.pushState({ url: targetUrl }, doc.title, targetUrl);
       }
 
-      window.scrollTo(0, 0);
+      // Handle scrolling: if target has hash, scroll to it, otherwise scroll to top
+      if (targetHash) {
+        setTimeout(() => {
+          const el = document.querySelector(targetHash);
+          if (el) {
+            el.scrollIntoView({ behavior: "smooth" });
+            pulseSection(el);
+          } else {
+            window.scrollTo(0, 0);
+          }
+        }, 120);
+      } else {
+        window.scrollTo(0, 0);
+      }
 
-      // 4. Update Nav Links active indicator
-      updateNavHighlight(targetPath);
+      // 4. Update tab active highlight
+      updateNavHighlight(targetKey);
 
-      // 5. Play slide enter animation
+      // 5. Play enter animation
       currentMain.classList.remove(exitClass);
       currentMain.classList.add(enterClass);
 
-      // 6. Execute scripts from the new page
+      // 6. Execute scripts from the incoming page
       executeNewScripts(doc);
 
-      // 7. Trigger drop-in physics staggers
+      // 7. Re-trigger drop-in physics animations
       triggerDropIns();
 
       setTimeout(() => {
@@ -113,19 +167,24 @@
     }
   }
 
-  function updateNavHighlight(path) {
+  function pulseSection(el) {
+    if (!el) return;
+    el.classList.remove("section-target-pulse");
+    void el.offsetWidth;
+    el.classList.add("section-target-pulse");
+  }
+
+  function updateNavHighlight(activeKey) {
     const navLinks = document.querySelectorAll(".topbar nav a, .top nav a");
     navLinks.forEach((link) => {
-      const href = link.getAttribute("href");
-      if (!href) return;
-      if (href.startsWith("#")) return;
-
-      const linkPath = new URL(href, window.location.origin).pathname;
-      if (linkPath === path || (path === "/" && linkPath.endsWith("/index.html"))) {
+      const dataNav = link.dataset.nav;
+      if (dataNav === activeKey) {
+        link.classList.add("active");
         if (!link.classList.contains("nav-cta")) {
           link.style.color = "var(--sodium)";
         }
       } else {
+        link.classList.remove("active");
         if (!link.classList.contains("nav-cta")) {
           link.style.color = "";
         }
@@ -134,18 +193,14 @@
   }
 
   function executeNewScripts(doc) {
-    const scripts = doc.querySelectorAll("main script, body > script");
+    const scripts = doc.querySelectorAll("script:not([src*='transitions.js'])");
     scripts.forEach((oldScript) => {
-      // Don't re-run this transition script itself
-      if (oldScript.src && oldScript.src.includes("transitions.js")) return;
-      
       const newScript = document.createElement("script");
       Array.from(oldScript.attributes).forEach((attr) => {
         newScript.setAttribute(attr.name, attr.value);
       });
       newScript.textContent = oldScript.textContent;
       document.body.appendChild(newScript);
-      // Clean up inline script element after execution
       if (!oldScript.src) {
         newScript.remove();
       }
@@ -156,11 +211,10 @@
     const dropEls = document.querySelectorAll(".drop-in");
     dropEls.forEach((el) => {
       el.style.animation = "none";
-      void el.offsetHeight; // trigger reflow
+      void el.offsetHeight;
       el.style.animation = "";
     });
 
-    // Re-observe scroll elements
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
@@ -172,7 +226,7 @@
     document.querySelectorAll(".reveal-item").forEach((el) => observer.observe(el));
   }
 
-  // Intercept all internal clicks
+  // Intercept click on links
   document.addEventListener("click", (e) => {
     const link = e.target.closest("a");
     if (!link) return;
@@ -180,27 +234,47 @@
     const href = link.getAttribute("href");
     if (!href) return;
 
-    // Ignore mailto, tel, external links
+    // Ignore external links
     if (href.startsWith("http://") || href.startsWith("https://")) {
       const url = new URL(href);
       if (url.origin !== window.location.origin) return;
     }
-
-    // Ignore raw hash anchors
-    if (href.startsWith("#")) return;
 
     e.preventDefault();
     navigateTo(href);
   });
 
   // Browser back/forward button support
-  window.addEventListener("popstate", (e) => {
+  window.addEventListener("popstate", () => {
     navigateTo(window.location.href, true);
   });
 
-  // Initial setup on first page load
+  // ScrollSpy for in-page sections on index.html
+  function initScrollSpy() {
+    const sections = ["keeper", "how", "risk"];
+    const observer = new IntersectionObserver((entries) => {
+      const path = window.location.pathname.replace(/\/$/, "/index.html");
+      if (!path.endsWith("/index.html")) return;
+
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const id = entry.target.id;
+          if (sections.includes(id)) {
+            updateNavHighlight(id);
+          }
+        }
+      });
+    }, { threshold: 0.35 });
+
+    sections.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+  }
+
   document.addEventListener("DOMContentLoaded", () => {
-    updateNavHighlight(window.location.pathname);
+    updateNavHighlight(getRouteKey(window.location.href));
     triggerDropIns();
+    initScrollSpy();
   });
 })();
