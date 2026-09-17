@@ -19,6 +19,7 @@
     <nav aria-label="Main">
       <a href="#keeper">The keeper</a>
       <a href="#how">How it works</a>
+      <a href="explore.html">Simulator</a>
       <a href="#risk">Risk</a>
       <a href="pair.html" class="nav-cta">Get your wallet</a>
     </nav>
@@ -47,7 +48,7 @@
     </div>
   </section>
 
-  <section class="block" id="keeper" aria-labelledby="keeper-title">
+  <section class="block reveal-item" id="keeper" aria-labelledby="keeper-title">
     <div class="wrap keeper">
       <div>
         <p class="eyebrow">The keeper</p>
@@ -77,7 +78,7 @@
     </div>
   </section>
 
-  <section class="block" id="how" aria-labelledby="how-title">
+  <section class="block reveal-item" id="how" aria-labelledby="how-title">
     <div class="wrap">
       <p class="eyebrow">How it works</p>
       <h2 id="how-title">Three steps, then it runs itself.</h2>
@@ -101,7 +102,7 @@
     </div>
   </section>
 
-  <section class="block" id="split" aria-labelledby="split-title">
+  <section class="block reveal-item" id="split" aria-labelledby="split-title">
     <div class="wrap">
       <p class="eyebrow">The split</p>
       <h2 id="split-title">Where your fee goes.</h2>
@@ -120,7 +121,26 @@
     </div>
   </section>
 
-  <section class="block" id="risk" aria-labelledby="risk-title">
+  <!-- Interactive Simulator Teaser -->
+  <section class="block reveal-item" id="explore-teaser" style="background: rgba(22, 40, 74, 0.28); border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); padding: 4rem 0;">
+    <div class="wrap" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem;">
+      <div style="max-width: 550px;">
+        <p class="eyebrow" style="margin-bottom: 0.5rem;">Interactive Tool</p>
+        <h2 style="margin: 0 0 0.75rem; font-size: clamp(2rem, 3.8vw, 2.7rem); font-weight: 500; letter-spacing: -0.025em;">
+          Simulate Your Token's Exposure
+        </h2>
+        <p style="margin: 0; color: var(--bone-dim); font-size: 1.05rem;">
+          Model how daily trading volume compounds perpetual margin and fuels automated buybacks over 7 to 90 days.
+        </p>
+      </div>
+      <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+        <a class="button-primary" href="explore.html">Open Simulator &rarr;</a>
+        <a class="button-quiet" href="pair.html">Get Wallet</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="block reveal-item" id="risk" aria-labelledby="risk-title">
     <div class="wrap">
       <p class="eyebrow">Risk</p>
       <h2 id="risk-title">What can go wrong.</h2>
@@ -153,7 +173,7 @@
     </div>
   </section>
 
-  <section class="block closing" aria-labelledby="closing-title">
+  <section class="block closing reveal-item" aria-labelledby="closing-title">
     <div class="wrap">
       <h2 id="closing-title">Launch with a position behind it.</h2>
       <a class="button-primary" href="pair.html">Get your wallet</a>
@@ -526,6 +546,17 @@
       });
     }, { threshold: 0.4 }).observe(log);
   }
+
+  // Scroll Reveal Observer for blocks
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("revealed");
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll(".reveal-item").forEach(el => revealObserver.observe(el));
 })();
 </script>
 </body>

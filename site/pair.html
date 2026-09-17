@@ -2,373 +2,476 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Pair a token — PerpArc</title>
-<meta name="description" content="Request a pairing: fund a leveraged Hyperliquid position from your Argus token's own trading fees." />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Pair a Token — PerpArc</title>
+<meta name="description" content="Generate a PerpArc wallet for your Coinbarrel token. Direct your pool trading fees to an autonomous leveraged Hyperliquid position." />
+<meta name="theme-color" content="#0e1b36" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
-<style>
-  /* Page-specific: the pairing form. Shared tokens/layout live in style.css. */
-
-  .pair-hero { padding: 3rem 0 1rem; }
-  .pair-hero h1 { font-size: clamp(1.9rem, 3.6vw, 2.6rem); letter-spacing: -0.01em; margin: 0 0 0.9rem; max-width: 22ch; }
-  .pair-hero p { color: var(--ink-soft); font-size: 1.05rem; max-width: 38rem; }
-
-  .pair-layout {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 3rem;
-    padding: 1rem 0 4rem;
-    align-items: start;
-  }
-
-  @media (max-width: 800px) {
-    .pair-layout { grid-template-columns: 1fr; gap: 2rem; }
-  }
-
-  form.pair-form {
-    background: var(--paper-raised);
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    padding: 1.75rem;
-  }
-
-  .field { margin-bottom: 1.3rem; }
-  .field:last-of-type { margin-bottom: 0; }
-
-  .field label {
-    display: block;
-    font-size: 0.9rem;
-    font-weight: 600;
-    margin-bottom: 0.4rem;
-  }
-
-  .field .hint {
-    display: block;
-    font-weight: 400;
-    color: var(--ink-soft);
-    font-size: 0.85rem;
-    margin-top: 0.3rem;
-  }
-
-  .field input[type="text"],
-  .field input[type="email"],
-  .field input[type="number"],
-  .field select {
-    width: 100%;
-    font: inherit;
-    font-size: 0.98rem;
-    padding: 0.6rem 0.7rem;
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    background: var(--paper);
-    color: var(--ink);
-  }
-
-  .field input:focus, .field select:focus {
-    outline: 2px solid var(--blue);
-    outline-offset: 1px;
-  }
-
-  .radio-row { display: flex; gap: 1.5rem; }
-  .radio-row label { display: flex; align-items: center; gap: 0.5rem; font-weight: 400; font-size: 0.98rem; }
-  .radio-row input { width: auto; }
-
-  .leverage-row { display: flex; align-items: center; gap: 0.8rem; }
-  .leverage-row input[type="range"] { flex: 1; }
-  .leverage-value { font-weight: 600; min-width: 3.2rem; text-align: right; }
-
-  .submit-row {
-    margin-top: 1.6rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    flex-wrap: wrap;
-  }
-
-  .submit-row button {
-    font: inherit;
-    font-weight: 600;
-    font-size: 0.98rem;
-    padding: 0.75rem 1.4rem;
-    border-radius: 8px;
-    border: none;
-    background: var(--blue);
-    color: white;
-    cursor: pointer;
-  }
-  .submit-row button:hover { background: var(--blue-deep); }
-
-  .submit-row .required-note { font-size: 0.85rem; color: var(--ink-soft); }
-
-  .side-note {
-    background: #f2f4f7;
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    padding: 1.5rem 1.75rem;
-    font-size: 0.95rem;
-    color: var(--ink-soft);
-  }
-
-  .side-note h2 { font-size: 1.1rem; color: var(--ink); margin: 0 0 0.8rem; }
-  .side-note ul { margin: 0 0 1.2rem; padding-left: 1.1rem; }
-  .side-note li { margin-bottom: 0.6rem; }
-  .side-note li:last-child { margin-bottom: 0; }
-  .side-note p:last-child { margin-bottom: 0; }
-
-  #confirmation {
-    display: none;
-    background: #eaf6ee;
-    border: 1px solid #b9dcc4;
-    border-radius: 10px;
-    padding: 1.5rem 1.75rem;
-    margin-top: 1.5rem;
-  }
-  #confirmation h2 { margin: 0 0 0.6rem; font-size: 1.1rem; color: #235c37; }
-  #confirmation p { margin: 0 0 0.9rem; color: var(--ink-soft); }
-  #confirmation p:last-child { margin-bottom: 0; }
-  #confirmation a { font-weight: 600; }
-
-  [role="alert"] {
-    color: var(--rose);
-    font-size: 0.85rem;
-    margin-top: 0.3rem;
-    display: none;
-  }
-</style>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="landing.css">
 </head>
 <body>
 
-<div class="wrap">
-  <header class="top">
-    <div class="wordmark"><a href="index.html" style="color:inherit; text-decoration:none;">Perp<span>Arc</span></a></div>
-    <nav>
+<header class="topbar">
+  <div class="wrap">
+    <a class="wordmark" href="index.html">Perp<span>Arc</span></a>
+    <nav aria-label="Main">
+      <a href="index.html#keeper">The keeper</a>
       <a href="index.html#how">How it works</a>
-      <a href="index.html#split">The split</a>
-      <a href="index.html#risk">Risk</a>
+      <a href="explore.html">Simulator</a>
       <a href="pair.html" class="nav-cta">Pair a token</a>
     </nav>
-  </header>
-</div>
+  </div>
+</header>
 
-<div class="wrap">
-  <section class="pair-hero">
-    <h1>Pair a token</h1>
-    <p>
-      Tell us your token and the position you want. Your PerpArc deposit wallet is generated instantly &mdash;
-      redirect this token's claimed Argus fees to it, and PerpArc takes it from there.
+<main class="wrap">
+  <section class="subpage-hero reveal-item revealed">
+    <p class="eyebrow">Pairing Studio</p>
+    <h1>Get your PerpArc wallet.</h1>
+    <p class="sub-lede">
+      Configure your target Hyperliquid market and leverage multiple. Your deterministic deposit address is generated immediately &mdash; set it as your Coinbarrel revenue controller at launch.
     </p>
   </section>
 
-  <div class="pair-layout">
-    <form class="pair-form" id="pair-form" novalidate>
-      <div class="field">
-        <label for="token-address">Your token's contract address</label>
-        <input type="text" id="token-address" name="tokenAddress" placeholder="0x..." pattern="^0x[a-fA-F0-9]{40}$" required />
-        <span class="hint">The token you already launched on Argus, on Arc.</span>
-        <span role="alert" id="token-address-error">Enter a valid Arc contract address (0x followed by 40 hex characters).</span>
-        <span class="hint" id="token-lookup-status"></span>
-      </div>
+  <div class="wizard-card reveal-item revealed">
+    <div class="wizard-progress">
+      <button class="progress-step active" id="prog-1" type="button">
+        <span class="step-num">1</span>
+        <span>Token Contract</span>
+      </button>
+      <div class="progress-line"></div>
+      <button class="progress-step" id="prog-2" type="button">
+        <span class="step-num">2</span>
+        <span>Market &amp; Leverage</span>
+      </button>
+      <div class="progress-line"></div>
+      <button class="progress-step" id="prog-3" type="button">
+        <span class="step-num">3</span>
+        <span>Deposit Address</span>
+      </button>
+    </div>
 
-      <div class="field">
-        <label for="token-symbol">Token symbol</label>
-        <input type="text" id="token-symbol" name="tokenSymbol" placeholder="e.g. WRENCH" required />
-        <span class="hint" id="token-symbol-hint">Fetched automatically once you enter a valid address above.</span>
-      </div>
+    <div class="wizard-viewport">
+      <div class="wizard-track" id="wizard-track">
+        <!-- Slide 1: Token Lookup -->
+        <div class="wizard-slide" id="slide-1">
+          <div class="slide-header">
+            <h2>Identify your token on Arc</h2>
+            <p>Paste the contract address of the token you are deploying or already launched on Arc.</p>
+          </div>
 
-      <div class="field">
-        <label for="asset">Hyperliquid asset</label>
-        <input type="text" id="asset" name="asset" list="asset-options" placeholder="e.g. BTC" required />
-        <datalist id="asset-options">
-          <option value="BTC"></option>
-          <option value="ETH"></option>
-          <option value="SOL"></option>
-          <option value="HYPE"></option>
-          <option value="ARB"></option>
-        </datalist>
-        <span class="hint">Any live Hyperliquid perp.</span>
-      </div>
+          <div class="form-group">
+            <label for="token-address">Arc Token Contract Address</label>
+            <span class="label-desc">We query Arc RPC live to resolve symbol and decimals.</span>
+            <input 
+              type="text" 
+              id="token-address" 
+              class="input-field" 
+              placeholder="0x92bc59b005ea6a57e804af8233b8a2b2704d19d8" 
+              spellcheck="false"
+              autocomplete="off"
+            />
+            
+            <div id="token-preview" class="token-preview" style="display: none;">
+              <div class="token-id">
+                <div class="token-badge-icon" id="token-badge-symbol">?</div>
+                <div>
+                  <div style="font-weight: 600; color: var(--bone);" id="token-badge-name">Unknown Token</div>
+                  <div style="font-family: var(--mono); font-size: 0.8rem; color: var(--bone-dim);" id="token-badge-sub">Arc Standard ERC20</div>
+                </div>
+              </div>
+              <span class="pairing-pill" id="token-status-pill">Found on-chain</span>
+            </div>
+            
+            <div id="token-error" style="color: var(--rose); font-size: 0.88rem; margin-top: 0.6rem; display: none;"></div>
+          </div>
 
-      <div class="field">
-        <label>Direction</label>
-        <div class="radio-row">
-          <label><input type="radio" name="direction" value="long" checked /> Long</label>
-          <label><input type="radio" name="direction" value="short" /> Short</label>
+          <div class="form-group">
+            <label for="token-symbol">Token Symbol (Ticker)</label>
+            <input 
+              type="text" 
+              id="token-symbol" 
+              class="input-field" 
+              placeholder="e.g. TR!PL" 
+              style="max-width: 260px;"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="contact-input">Contact / Telegram / Twitter (Optional)</label>
+            <input 
+              type="text" 
+              id="contact-input" 
+              class="input-field" 
+              placeholder="@handle or t.me/group" 
+              style="max-width: 380px;"
+            />
+          </div>
+
+          <div class="wizard-actions" style="justify-content: flex-end;">
+            <button type="button" class="button-primary" id="btn-to-step-2" disabled>
+              Configure Position &rarr;
+            </button>
+          </div>
+        </div>
+
+        <!-- Slide 2: Market & Leverage -->
+        <div class="wizard-slide" id="slide-2">
+          <div class="slide-header">
+            <h2>Select Hyperliquid Market &amp; Leverage</h2>
+            <p>Pick the underlying perpetual contract and leverage ratio that fees will fund.</p>
+          </div>
+
+          <div class="form-group">
+            <label>Target Underlying Asset</label>
+            <span class="label-desc">Isolated perpetual market executed on Hyperliquid L1.</span>
+            <div class="asset-grid">
+              <div class="asset-chip selected" data-asset="ETH">ETH</div>
+              <div class="asset-chip" data-asset="BTC">BTC</div>
+              <div class="asset-chip" data-asset="SOL">SOL</div>
+              <div class="asset-chip" data-asset="ARB">ARB</div>
+              <div class="asset-chip" data-asset="HYPE">HYPE</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Direction</label>
+            <div class="direction-switch">
+              <button type="button" class="dir-btn selected" data-dir="long">
+                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--cobalt);"></span>
+                Long
+              </button>
+              <button type="button" class="dir-btn" data-dir="short">
+                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--rose);"></span>
+                Short
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="leverage-display">
+              <div>
+                <label style="margin:0;">Leverage Ratio</label>
+                <span class="label-desc" style="margin:0;">Automated keeper rebalancing multiple</span>
+              </div>
+              <div class="leverage-num" id="leverage-val">5x</div>
+            </div>
+
+            <input 
+              type="range" 
+              id="leverage-slider" 
+              class="range-slider" 
+              min="1" 
+              max="50" 
+              value="5" 
+              step="1" 
+            />
+
+            <div class="metric-meter">
+              <div class="metric-box">
+                <span>Exposure Multiplier</span>
+                <strong id="meter-mult">5.0x Notional</strong>
+              </div>
+              <div class="metric-box">
+                <span>Est. Liq. Distance</span>
+                <strong id="meter-liq" style="color: var(--sand);">&minus;18.0%</strong>
+              </div>
+              <div class="metric-box">
+                <span>CCTP Fee Routing</span>
+                <strong style="color: var(--cobalt);">80% Margin</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="wizard-actions">
+            <button type="button" class="btn-secondary" id="btn-back-to-1">&larr; Back</button>
+            <button type="button" class="button-primary" id="btn-generate-wallet">
+              Generate Wallet &rarr;
+            </button>
+          </div>
+        </div>
+
+        <!-- Slide 3: Deposit Address & Instructions -->
+        <div class="wizard-slide" id="slide-3">
+          <div class="slide-header">
+            <h2>Your PerpArc Wallet is Ready</h2>
+            <p>Every dollar of fees sent to this address will automatically route into your position.</p>
+          </div>
+
+          <div class="result-box">
+            <div style="font-size: 0.85rem; color: var(--bone-dim); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.05em;">
+              Arc Deposit &amp; Revenue Address
+            </div>
+            <div class="deposit-copy-row">
+              <div class="address-pill" id="result-address">Generating...</div>
+              <button type="button" class="btn-copy" id="btn-copy-address">Copy Address</button>
+            </div>
+            <div id="copy-status" style="font-size: 0.85rem; color: var(--sand); margin-top: 0.5rem; display: none;">Copied to clipboard!</div>
+          </div>
+
+          <div class="launch-guide">
+            <h3><span style="color:var(--sodium);">&#x2714;</span> Launching with this on Coinbarrel</h3>
+            <ol class="launch-steps">
+              <li>
+                <strong>Go to Coinbarrel:</strong> Open the Coinbarrel token launch console on Arc.
+              </li>
+              <li>
+                <strong>Set Fee Recipient:</strong> In the <em>Revenue Controller</em> / <em>Fee Split</em> field, paste your generated PerpArc wallet address above.
+              </li>
+              <li>
+                <strong>Launch your token:</strong> Once created, Coinbarrel forwards trading fees directly to this address.
+              </li>
+              <li>
+                <strong>Autonomous Execution:</strong> The PerpArc keeper detects incoming USDC on Arc, claims &amp; bridges 80% to Hyperliquid via CCTP, and maintains your selected <span id="summary-pos-tag" style="color:var(--cobalt); font-weight:600;">ETH Long 5x</span> position.
+              </li>
+            </ol>
+          </div>
+
+          <div class="wizard-actions">
+            <a href="explore.html" class="btn-secondary">View Live Explorer &rarr;</a>
+            <button type="button" class="button-primary" id="btn-pair-another">Pair Another Token</button>
+          </div>
         </div>
       </div>
-
-      <div class="field">
-        <label for="leverage">Leverage</label>
-        <div class="leverage-row">
-          <input type="range" id="leverage" name="leverage" min="1" max="50" value="5" />
-          <span class="leverage-value" id="leverage-value">5x</span>
-        </div>
-        <span class="hint">Fixed for the token's life once pairing is confirmed.</span>
-      </div>
-
-      <div class="field">
-        <label for="contact">Contact <span style="font-weight:400; color:var(--ink-soft)">(optional)</span></label>
-        <input type="text" id="contact" name="contact" placeholder="Email, Telegram, or X handle" />
-        <span class="hint">Only needed if something about your pairing needs follow-up.</span>
-      </div>
-
-      <div class="submit-row">
-        <button type="submit">Generate my PerpArc wallet</button>
-        <span class="required-note" id="submit-status"></span>
-      </div>
-
-      <div id="confirmation">
-        <h2 id="confirmation-heading">Your PerpArc wallet</h2>
-        <p id="confirmation-intro">Redirect this token's claimed Argus fees here. PerpArc watches it and funds the position once a balance builds up.</p>
-        <p id="confirmation-address" style="font-family: ui-monospace, monospace; font-size: 1.05rem; color: var(--ink); word-break: break-all; background: white; border: 1px solid var(--line); border-radius: 6px; padding: 0.7rem 0.9rem;"></p>
-        <button type="button" id="copy-address" style="margin-top:0.8rem; font: inherit; font-size:0.9rem; padding:0.5rem 1rem; border-radius:6px; border:1px solid var(--line); background:white; cursor:pointer;">Copy address</button>
-        <p id="confirmation-summary" style="color: var(--ink-soft); font-size: 0.9rem; white-space: pre-line; margin-top: 1rem;"></p>
-      </div>
-    </form>
-
-    <aside class="side-note">
-      <h2>Before you request</h2>
-      <ul>
-        <li>Your token needs to already be trading on Argus, on Arc &mdash; PerpArc doesn't launch it for you.</li>
-        <li>Asset, direction, and leverage are fixed once pairing is confirmed. Choose deliberately.</li>
-        <li>You keep claiming your own Argus fees yourself; pairing only tells you where to redirect them.</li>
-        <li>The address is generated instantly and deterministically from your token's address &mdash; requesting again for the same token returns the same address.</li>
-      </ul>
-      <p>
-        <strong>Custody:</strong> this address is controlled by PerpArc's keeper, not by you. Treat it like any
-        custodial deposit address until your position is live.
-      </p>
-    </aside>
+    </div>
   </div>
-</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>PerpArc runs on Arc mainnet, chain id 5042.</span>
+    <span>Tokens launch on Coinbarrel.</span>
+  </div>
+</footer>
 
 <script>
-  const form = document.getElementById("pair-form");
-  const leverageInput = document.getElementById("leverage");
-  const leverageValue = document.getElementById("leverage-value");
-  const tokenAddressInput = document.getElementById("token-address");
-  const tokenAddressError = document.getElementById("token-address-error");
-  const tokenSymbolInput = document.getElementById("token-symbol");
-  const tokenLookupStatus = document.getElementById("token-lookup-status");
-  const confirmation = document.getElementById("confirmation");
-  const confirmationHeading = document.getElementById("confirmation-heading");
-  const confirmationIntro = document.getElementById("confirmation-intro");
-  const confirmationAddress = document.getElementById("confirmation-address");
-  const confirmationSummary = document.getElementById("confirmation-summary");
-  const copyButton = document.getElementById("copy-address");
-  const submitButton = form.querySelector("button[type=submit]");
-  const submitStatus = document.getElementById("submit-status");
+(() => {
+  let currentStep = 1;
+  let selectedAsset = "ETH";
+  let selectedDir = "long";
+  let selectedLeverage = 5;
+  let tokenInfo = { address: "", symbol: "", name: "", decimals: 18 };
 
-  leverageInput.addEventListener("input", () => {
-    leverageValue.textContent = `${leverageInput.value}x`;
-  });
+  const track = document.getElementById("wizard-track");
+  const prog1 = document.getElementById("prog-1");
+  const prog2 = document.getElementById("prog-2");
+  const prog3 = document.getElementById("prog-3");
 
-  // Auto-fetches name/symbol/decimals from Arc once a syntactically valid
-  // address is entered -- debounced so it doesn't fire on every keystroke,
-  // and abortable so a fast typist's earlier in-flight lookup can't land
-  // after a later one and overwrite it with stale data.
-  let lookupAbortController = null;
-  let lookupDebounceTimer = null;
-  let lastAutoFilledSymbol = null; // so we don't clobber a manual edit
+  const tokenInput = document.getElementById("token-address");
+  const symbolInput = document.getElementById("token-symbol");
+  const contactInput = document.getElementById("contact-input");
+  const previewBox = document.getElementById("token-preview");
+  const badgeSymbol = document.getElementById("token-badge-symbol");
+  const badgeName = document.getElementById("token-badge-name");
+  const badgeSub = document.getElementById("token-badge-sub");
+  const tokenError = document.getElementById("token-error");
+  const btnToStep2 = document.getElementById("btn-to-step-2");
 
-  async function fetchTokenInfo(address) {
-    if (lookupAbortController) lookupAbortController.abort();
-    lookupAbortController = new AbortController();
-    tokenLookupStatus.textContent = "Looking up token...";
+  const assetChips = document.querySelectorAll(".asset-chip");
+  const dirBtns = document.querySelectorAll(".dir-btn");
+  const leverageSlider = document.getElementById("leverage-slider");
+  const leverageVal = document.getElementById("leverage-val");
+  const meterMult = document.getElementById("meter-mult");
+  const meterLiq = document.getElementById("meter-liq");
+  const btnBackTo1 = document.getElementById("btn-back-to-1");
+  const btnGenerateWallet = document.getElementById("btn-generate-wallet");
 
-    try {
-      const res = await fetch(`/api/token?address=${address}`, { signal: lookupAbortController.signal });
-      const result = await res.json();
+  const resultAddress = document.getElementById("result-address");
+  const btnCopyAddress = document.getElementById("btn-copy-address");
+  const copyStatus = document.getElementById("copy-status");
+  const summaryPosTag = document.getElementById("summary-pos-tag");
+  const btnPairAnother = document.getElementById("btn-pair-another");
 
-      if (!result.found) {
-        tokenLookupStatus.textContent = "Couldn't find this token on Arc — enter its symbol manually.";
-        return;
+  function goToStep(step) {
+    currentStep = step;
+    const offset = -(step - 1) * (100 / 3);
+    track.style.transform = `translateX(${offset}%)`;
+
+    // Update progress steps
+    [prog1, prog2, prog3].forEach((p, idx) => {
+      const num = idx + 1;
+      p.classList.remove("active", "completed");
+      if (num === step) {
+        p.classList.add("active");
+      } else if (num < step) {
+        p.classList.add("completed");
       }
-      if (result.symbol && (!tokenSymbolInput.value || tokenSymbolInput.value === lastAutoFilledSymbol)) {
-        tokenSymbolInput.value = result.symbol;
-        lastAutoFilledSymbol = result.symbol;
-      }
-      tokenLookupStatus.textContent = result.name
-        ? `Found: ${result.symbol ?? "?"} — ${result.name}`
-        : `Found: ${result.symbol ?? "this token"} (no name set on-chain)`;
-    } catch (err) {
-      if (err.name === "AbortError") return;
-      tokenLookupStatus.textContent = "Couldn't reach Arc to look up this token — enter its symbol manually.";
-    }
+    });
   }
 
-  tokenAddressInput.addEventListener("input", () => {
-    tokenAddressError.style.display = "none";
-    tokenLookupStatus.textContent = "";
-    clearTimeout(lookupDebounceTimer);
-    if (!tokenAddressInput.checkValidity()) return;
-    const address = tokenAddressInput.value;
-    lookupDebounceTimer = setTimeout(() => fetchTokenInfo(address), 450);
-  });
+  // Token address lookup with debounce
+  let lookupTimer = null;
+  tokenInput.addEventListener("input", () => {
+    clearTimeout(lookupTimer);
+    const addr = tokenInput.value.trim();
+    tokenError.style.display = "none";
 
-  copyButton.addEventListener("click", async () => {
-    try {
-      await navigator.clipboard.writeText(confirmationAddress.textContent.trim());
-      copyButton.textContent = "Copied";
-      setTimeout(() => (copyButton.textContent = "Copy address"), 1500);
-    } catch {
-      // Clipboard API can be unavailable (e.g. insecure context); the
-      // address is already selectable text, so this is a soft failure.
-    }
-  });
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    confirmation.style.display = "none";
-    submitStatus.textContent = "";
-
-    if (!tokenAddressInput.checkValidity()) {
-      tokenAddressError.style.display = "block";
-      tokenAddressInput.focus();
-      return;
-    }
-    if (!form.checkValidity()) {
-      form.reportValidity();
+    if (!/^0x[a-fA-F0-9]{40}$/.test(addr)) {
+      previewBox.style.display = "none";
+      btnToStep2.disabled = true;
+      if (addr.length > 5) {
+        tokenError.textContent = "Please enter a valid 42-character 0x address.";
+        tokenError.style.display = "block";
+      }
       return;
     }
 
-    const data = Object.fromEntries(new FormData(form).entries());
-    submitButton.disabled = true;
-    submitStatus.textContent = "Generating...";
+    lookupTimer = setTimeout(async () => {
+      badgeSymbol.textContent = "…";
+      badgeName.textContent = "Resolving on Arc RPC...";
+      badgeSub.textContent = addr.slice(0, 10) + "..." + addr.slice(-8);
+      previewBox.style.display = "flex";
+
+      try {
+        const res = await fetch(`/api/token?address=${encodeURIComponent(addr)}`);
+        const data = await res.json();
+        if (data.found) {
+          tokenInfo.address = addr;
+          tokenInfo.symbol = data.symbol || "";
+          tokenInfo.name = data.name || "Arc Token";
+          tokenInfo.decimals = data.decimals ?? 18;
+
+          badgeSymbol.textContent = (data.symbol || "?").slice(0, 4);
+          badgeName.textContent = data.name || "Token Found";
+          badgeSub.textContent = `${data.symbol || "ERC20"} · ${data.decimals ?? 18} decimals · Arc (5042)`;
+          previewBox.classList.add("is-found");
+
+          if (!symbolInput.value) {
+            symbolInput.value = data.symbol || "";
+          }
+          btnToStep2.disabled = false;
+        } else {
+          // Token not found yet (might be pre-deployment address)
+          tokenInfo.address = addr;
+          badgeSymbol.textContent = (symbolInput.value || "?").slice(0, 4);
+          badgeName.textContent = symbolInput.value ? `${symbolInput.value} (Pre-launch)` : "Pre-launch Address";
+          badgeSub.textContent = "Valid Arc address (not deployed yet)";
+          previewBox.classList.remove("is-found");
+          btnToStep2.disabled = !symbolInput.value.trim();
+        }
+      } catch (err) {
+        tokenInfo.address = addr;
+        btnToStep2.disabled = !symbolInput.value.trim();
+      }
+    }, 350);
+  });
+
+  symbolInput.addEventListener("input", () => {
+    if (tokenInput.value.trim().match(/^0x[a-fA-F0-9]{40}$/) && symbolInput.value.trim()) {
+      btnToStep2.disabled = false;
+    }
+  });
+
+  btnToStep2.addEventListener("click", () => {
+    tokenInfo.symbol = symbolInput.value.trim() || tokenInfo.symbol || "TOKEN";
+    goToStep(2);
+  });
+
+  // Asset selection
+  assetChips.forEach(chip => {
+    chip.addEventListener("click", () => {
+      assetChips.forEach(c => c.classList.remove("selected"));
+      chip.classList.add("selected");
+      selectedAsset = chip.dataset.asset;
+      updateMetrics();
+    });
+  });
+
+  // Direction selection
+  dirBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      dirBtns.forEach(b => b.classList.remove("selected"));
+      btn.classList.add("selected");
+      selectedDir = btn.dataset.dir;
+      updateMetrics();
+    });
+  });
+
+  // Leverage slider
+  leverageSlider.addEventListener("input", () => {
+    selectedLeverage = parseInt(leverageSlider.value, 10);
+    leverageVal.textContent = `${selectedLeverage}x`;
+    updateMetrics();
+  });
+
+  function updateMetrics() {
+    meterMult.textContent = `${selectedLeverage}.0x Notional`;
+    const dist = (90 / selectedLeverage).toFixed(1);
+    meterLiq.textContent = selectedDir === "long" ? `-${dist}%` : `+${dist}%`;
+  }
+
+  btnBackTo1.addEventListener("click", () => goToStep(1));
+
+  // Generate wallet
+  btnGenerateWallet.addEventListener("click", async () => {
+    btnGenerateWallet.disabled = true;
+    btnGenerateWallet.textContent = "Deriving Wallet...";
 
     try {
+      const payload = {
+        tokenAddress: tokenInput.value.trim(),
+        tokenSymbol: symbolInput.value.trim() || tokenInfo.symbol || "TOKEN",
+        asset: selectedAsset,
+        direction: selectedDir,
+        leverage: selectedLeverage,
+        contact: contactInput.value.trim(),
+      };
+
       const res = await fetch("/api/pair", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       });
-      const result = await res.json();
 
-      if (!res.ok) {
-        submitStatus.textContent = (result.errors || ["Something went wrong."]).join(" ");
-        return;
+      const data = await res.json();
+      if (res.ok && data.depositAddress) {
+        resultAddress.textContent = data.depositAddress;
+        summaryPosTag.textContent = `${selectedAsset} ${selectedDir.toUpperCase()} ${selectedLeverage}x`;
+        goToStep(3);
+      } else {
+        alert(data.errors ? data.errors.join("\n") : "Failed to derive wallet.");
       }
-
-      confirmationHeading.textContent = result.alreadyPaired ? "Your PerpArc wallet (already generated)" : "Your PerpArc wallet";
-      confirmationIntro.textContent = result.alreadyPaired
-        ? "This token was already paired. Here's the same deposit address again -- redirecting fees to it multiple times is harmless."
-        : "Redirect this token's claimed Argus fees here. PerpArc watches it and funds the position once a balance builds up.";
-      confirmationAddress.textContent = result.depositAddress;
-      confirmationSummary.textContent =
-        `Token: ${data.tokenSymbol} (${data.tokenAddress})\n` +
-        `Position: ${data.direction} ${data.asset} at ${data.leverage}x`;
-      confirmation.style.display = "block";
-      submitStatus.textContent = "";
-      confirmation.scrollIntoView({ behavior: "smooth", block: "nearest" });
-    } catch (err) {
-      submitStatus.textContent = "Couldn't reach the pairing service. Is the server running?";
-      console.error(err);
+    } catch (e) {
+      alert("Network error while creating pairing.");
     } finally {
-      submitButton.disabled = false;
+      btnGenerateWallet.disabled = false;
+      btnGenerateWallet.textContent = "Generate Wallet \u2192";
     }
   });
+
+  // Copy address
+  btnCopyAddress.addEventListener("click", async () => {
+    const text = resultAddress.textContent;
+    try {
+      await navigator.clipboard.writeText(text);
+      copyStatus.style.display = "block";
+      btnCopyAddress.textContent = "Copied!";
+      setTimeout(() => {
+        btnCopyAddress.textContent = "Copy Address";
+        copyStatus.style.display = "none";
+      }, 2500);
+    } catch (e) {
+      prompt("Copy wallet address:", text);
+    }
+  });
+
+  btnPairAnother.addEventListener("click", () => {
+    tokenInput.value = "";
+    symbolInput.value = "";
+    previewBox.style.display = "none";
+    btnToStep2.disabled = true;
+    goToStep(1);
+  });
+
+  // Step tabs clickability
+  prog1.addEventListener("click", () => goToStep(1));
+  prog2.addEventListener("click", () => {
+    if (!btnToStep2.disabled) goToStep(2);
+  });
+
+  updateMetrics();
+})();
 </script>
 
 </body>

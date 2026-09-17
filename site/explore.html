@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Simulator &amp; Explorer — PerpArc</title>
+<meta name="description" content="Simulate how Coinbarrel token volume translates into autonomous buybacks and leveraged Hyperliquid perpetual positions." />
+<meta name="theme-color" content="#0e1b36" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="landing.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="wordmark" href="index.html">Perp<span>Arc</span></a>
+    <nav aria-label="Main">
+      <a href="index.html#keeper">The keeper</a>
+      <a href="index.html#how">How it works</a>
+      <a href="explore.html" style="color: var(--sodium);">Simulator</a>
+      <a href="pair.html" class="nav-cta">Pair a token</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="subpage-hero reveal-item revealed">
+    <p class="eyebrow">Realtime Mechanics</p>
+    <h1>Simulator &amp; Explorer.</h1>
+    <p class="sub-lede">
+      Model how your token's daily volume fuels autonomous buybacks and compounding Hyperliquid margin. Browse tokens actively paired on Arc mainnet.
+    </p>
+  </section>
+
+  <!-- Section: Interactive Simulator -->
+  <div class="sim-grid reveal-item revealed">
+    <div class="sim-controls">
+      <div style="font-size: 1.25rem; font-weight: 500; margin-bottom: 0.25rem; color: var(--bone);">
+        Simulation Parameters
+      </div>
+      <p style="color: var(--bone-dim); font-size: 0.9rem; margin-top: 0; margin-bottom: 1.75rem;">
+        Adjust volume and leverage to see continuous keeper fee routing.
+      </p>
+
+      <div class="form-group">
+        <div class="leverage-display">
+          <label style="margin:0;">24h Trading Volume</label>
+          <span class="leverage-calc" id="sim-vol-display" style="font-size: 1.1rem; color: var(--sand);">$100,000 / day</span>
+        </div>
+        <input 
+          type="range" 
+          id="sim-vol-slider" 
+          class="range-slider" 
+          min="5000" 
+          max="1000000" 
+          step="5000" 
+          value="100000" 
+        />
+      </div>
+
+      <div class="form-group">
+        <div class="leverage-display">
+          <label style="margin:0;">PerpArc Fee Allocation</label>
+          <span class="leverage-calc" id="sim-fee-display" style="font-size: 1.1rem; color: var(--cobalt);">1.0%</span>
+        </div>
+        <input 
+          type="range" 
+          id="sim-fee-slider" 
+          class="range-slider" 
+          min="0.25" 
+          max="3.0" 
+          step="0.25" 
+          value="1.0" 
+        />
+      </div>
+
+      <div class="form-group">
+        <div class="leverage-display">
+          <label style="margin:0;">Keeper Leverage Target</label>
+          <span class="leverage-calc" id="sim-lev-display" style="font-size: 1.1rem; color: var(--sodium);">5x</span>
+        </div>
+        <input 
+          type="range" 
+          id="sim-lev-slider" 
+          class="range-slider" 
+          min="1" 
+          max="50" 
+          step="1" 
+          value="5" 
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Timeframe Horizon</label>
+        <div class="asset-grid" id="sim-timeframes" style="grid-template-columns: repeat(4, 1fr);">
+          <div class="asset-chip" data-days="7">7 Days</div>
+          <div class="asset-chip selected" data-days="30">30 Days</div>
+          <div class="asset-chip" data-days="90">90 Days</div>
+          <div class="asset-chip" data-days="365">1 Year</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Reactive Simulator Output -->
+    <div class="sim-display">
+      <div class="sim-card">
+        <span class="eyebrow" style="margin-bottom: 0.5rem; display: inline-block;">Projected Perpetual Exposure</span>
+        <div style="font-family: var(--mono); font-size: clamp(2.4rem, 4vw, 3.4rem); font-weight: 600; color: var(--sand); line-height: 1.1; margin: 0.4rem 0 0.8rem;" id="out-total-exposure">
+          $120,000
+        </div>
+        <p style="color: var(--bone-dim); font-size: 0.95rem; margin: 0;">
+          Total notional position running on Hyperliquid, funded solely from organic pool trading volume.
+        </p>
+
+        <div class="sim-stat-row">
+          <div class="sim-stat">
+            <span class="stat-label">Total Fees Collected</span>
+            <div class="stat-val" id="out-fees-collected">$30,000</div>
+          </div>
+          <div class="sim-stat">
+            <span class="stat-label">80% Margin Capital (CCTP)</span>
+            <div class="stat-val blue" id="out-margin-capital">$24,000</div>
+          </div>
+          <div class="sim-stat">
+            <span class="stat-label">20% Buyback / Burn Pool</span>
+            <div class="stat-val gold" id="out-buyback-power">$6,000</div>
+          </div>
+          <div class="sim-stat">
+            <span class="stat-label">+10% Market Move PnL</span>
+            <div class="stat-val" id="out-market-gain" style="color:#7ee787;">+$12,000</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sim-card">
+        <div style="font-size: 1.05rem; font-weight: 500; color: var(--bone); margin-bottom: 0.6rem;">
+          The Autonomous Flow Breakdown
+        </div>
+        <p style="color: var(--bone-dim); font-size: 0.9rem; margin-top: 0; margin-bottom: 1.25rem;">
+          Every fee deposit on Arc triggers this exact deterministic pipeline:
+        </p>
+
+        <div class="split" style="margin-top: 0;">
+          <div class="split-bar">
+            <div class="split-position" style="width: 80%;"></div>
+            <div class="split-buyback" style="width: 20%;"></div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; font-family: var(--mono); font-size: 0.85rem; margin-top: 0.75rem;">
+          <span style="color: var(--cobalt);">80% &rarr; Hyperliquid Margin</span>
+          <span style="color: var(--sodium);">20% &rarr; Token Buyback</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: Live Paired Tokens -->
+  <section class="block reveal-item" style="padding-top: 2rem;" aria-labelledby="tokens-title">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+      <div>
+        <p class="eyebrow" style="margin-bottom: 0.5rem;">Network State</p>
+        <h2 id="tokens-title" style="margin: 0; font-size: clamp(1.8rem, 3.5vw, 2.5rem); font-weight: 500;">
+          Active Paired Tokens
+        </h2>
+      </div>
+      <a href="pair.html" class="button-primary">Pair New Token &rarr;</a>
+    </div>
+
+    <div class="pairings-gallery" id="pairings-container">
+      <div style="color: var(--bone-dim); font-family: var(--mono); padding: 2rem 0;">
+        Loading active pairings from Arc...
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>PerpArc runs on Arc mainnet, chain id 5042.</span>
+    <span>Tokens launch on Coinbarrel.</span>
+  </div>
+</footer>
+
+<script>
+(() => {
+  // Simulator State
+  let vol = 100000;
+  let feePct = 0.01;
+  let lev = 5;
+  let days = 30;
+
+  const volSlider = document.getElementById("sim-vol-slider");
+  const volDisplay = document.getElementById("sim-vol-display");
+  const feeSlider = document.getElementById("sim-fee-slider");
+  const feeDisplay = document.getElementById("sim-fee-display");
+  const levSlider = document.getElementById("sim-lev-slider");
+  const levDisplay = document.getElementById("sim-lev-display");
+  const timeframeChips = document.querySelectorAll("#sim-timeframes .asset-chip");
+
+  const outTotalExposure = document.getElementById("out-total-exposure");
+  const outFeesCollected = document.getElementById("out-fees-collected");
+  const outMarginCapital = document.getElementById("out-margin-capital");
+  const outBuybackPower = document.getElementById("out-buyback-power");
+  const outMarketGain = document.getElementById("out-market-gain");
+
+  function fmt(num) {
+    return "$" + Math.round(num).toLocaleString();
+  }
+
+  function recalculate() {
+    const totalVolume = vol * days;
+    const totalFees = totalVolume * feePct;
+    const marginCapital = totalFees * 0.8;
+    const buybackAmount = totalFees * 0.2;
+    const totalExposure = marginCapital * lev;
+    const pnl10Pct = totalExposure * 0.1;
+
+    outTotalExposure.textContent = fmt(totalExposure);
+    outFeesCollected.textContent = fmt(totalFees);
+    outMarginCapital.textContent = fmt(marginCapital);
+    outBuybackPower.textContent = fmt(buybackAmount);
+    outMarketGain.textContent = "+" + fmt(pnl10Pct);
+  }
+
+  volSlider.addEventListener("input", () => {
+    vol = parseFloat(volSlider.value);
+    volDisplay.textContent = `$${vol.toLocaleString()} / day`;
+    recalculate();
+  });
+
+  feeSlider.addEventListener("input", () => {
+    const pct = parseFloat(feeSlider.value);
+    feePct = pct / 100;
+    feeDisplay.textContent = `${pct.toFixed(2)}%`;
+    recalculate();
+  });
+
+  levSlider.addEventListener("input", () => {
+    lev = parseInt(levSlider.value, 10);
+    levDisplay.textContent = `${lev}x`;
+    recalculate();
+  });
+
+  timeframeChips.forEach(chip => {
+    chip.addEventListener("click", () => {
+      timeframeChips.forEach(c => c.classList.remove("selected"));
+      chip.classList.add("selected");
+      days = parseInt(chip.dataset.days, 10);
+      recalculate();
+    });
+  });
+
+  recalculate();
+
+  // Fetch Live Pairings
+  const container = document.getElementById("pairings-container");
+  async function loadPairings() {
+    try {
+      const res = await fetch("/api/pairings");
+      const list = await res.json();
+      if (!Array.isArray(list) || list.length === 0) {
+        container.innerHTML = `<div style="color: var(--bone-dim); font-size: 0.95rem; grid-column: 1/-1;">No tokens paired yet. Be the first to pair on Coinbarrel!</div>`;
+        return;
+      }
+
+      container.innerHTML = list.map(item => `
+        <div class="pairing-item">
+          <div class="pairing-head">
+            <div class="pairing-token">
+              <span class="token-badge-icon" style="width:28px; height:28px; font-size:0.75rem;">$</span>
+              <span>${escapeHtml(item.tokenSymbol || "TOKEN")}</span>
+            </div>
+            <div style="display:flex; gap:0.5rem;">
+              <span class="pairing-pill ${item.isLong ? '' : 'short'}">${item.isLong ? 'LONG' : 'SHORT'}</span>
+              <span class="pairing-pill" style="border-color:rgba(233,161,63,0.3); color:var(--sand);">${item.asset} ${item.leverage}x</span>
+            </div>
+          </div>
+          <div style="font-size: 0.8rem; color: var(--bone-dim); margin-top: 0.5rem;">
+            Token: <span style="font-family:var(--mono); color:var(--bone);">${escapeHtml(truncate(item.tokenAddress))}</span>
+          </div>
+          <div class="pairing-address">
+            Deposit: ${escapeHtml(item.depositAddress || "0x...")}
+          </div>
+        </div>
+      `).join("");
+    } catch (e) {
+      container.innerHTML = `<div style="color: var(--rose);">Could not load pairings.</div>`;
+    }
+  }
+
+  function truncate(addr) {
+    if (!addr || addr.length < 12) return addr || "";
+    return addr.slice(0, 8) + "..." + addr.slice(-6);
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>'"]/g, tag => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+    }[tag] || tag));
+  }
+
+  loadPairings();
+
+  // Scroll Reveal Observer
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("revealed");
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll(".reveal-item").forEach(el => observer.observe(el));
+})();
+</script>
+
+</body>
+</html>
