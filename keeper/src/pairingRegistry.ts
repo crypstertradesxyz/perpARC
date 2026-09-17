@@ -10,11 +10,8 @@
 
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import type { Address } from "viem";
 import { config } from "./config.js";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export interface Pairing {
   tokenAddress: Address;
@@ -29,7 +26,7 @@ export interface Pairing {
 }
 
 export async function loadPairings(): Promise<Pairing[]> {
-  const resolved = path.resolve(__dirname, config.pairingsFilePath);
+  const resolved = path.resolve(process.cwd(), config.pairingsFilePath);
   try {
     const raw = await readFile(resolved, "utf8");
     const parsed = JSON.parse(raw) as Record<string, Pairing>;

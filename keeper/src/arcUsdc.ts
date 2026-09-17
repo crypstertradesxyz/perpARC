@@ -8,7 +8,7 @@
  * to handle this split) before writing any of this file.
  */
 
-import { type Address, createPublicClient, createWalletClient, http } from "viem";
+import { type Account, type Address, createPublicClient, createWalletClient, http } from "viem";
 import { config } from "./config.js";
 import { arc } from "./chains.js";
 import { erc20Abi } from "./erc20.js";
@@ -40,11 +40,7 @@ export function raw6ToUsdc(raw: bigint): number {
   return Number(raw) / 1_000_000;
 }
 
-export async function transferArcUsdc(
-  fromAccount: Parameters<typeof createWalletClient>[0]["account"],
-  to: Address,
-  amountRaw6: bigint
-): Promise<`0x${string}`> {
+export async function transferArcUsdc(fromAccount: Account, to: Address, amountRaw6: bigint): Promise<`0x${string}`> {
   if (config.dryRun) {
     console.log(`[keeper] DRY_RUN: would transfer ${raw6ToUsdc(amountRaw6)} USDC on Arc to ${to}`);
     return "0x0000000000000000000000000000000000000000000000000000000000000000" as `0x${string}`;

@@ -23,6 +23,7 @@ import {
   http,
   pad,
   parseAbiItem,
+  toEventSelector,
 } from "viem";
 import { arbitrum } from "viem/chains";
 import { config } from "./config.js";
@@ -61,7 +62,7 @@ const messageTransmitterAbi = [
   },
 ] as const;
 
-const messageSentEvent = parseAbiItem("event MessageSent(bytes message)");
+const MESSAGE_SENT_TOPIC = toEventSelector(parseAbiItem("event MessageSent(bytes message)"));
 
 const arcPublicClient = createPublicClient({ chain: arc, transport: http(config.arcRpcUrl) });
 const arbitrumPublicClient = createPublicClient({ chain: arbitrum, transport: http(config.arbitrumRpcUrl) });
@@ -73,16 +74,22 @@ function addressToBytes32(address: Address): Hex {
   return pad(address, { size: 32 });
 }
 
+export interface BurnResult {
+  arcBurnTxHash: Hex;
+  message: Hex;
+}
+
 /**
- * Burns `amountRaw6` (6-decimal USDC) on Arc from `account`, mints the same
- * amount to `account`'s own address on Arbitrum. Returns once Circle's
- * attestation is fetched and the mint transaction on Arbitrum confirms.
+ * Step 1/2: burns `amountRaw6` on Arc from `account`. Callers MUST persist
+ * the returned `message`/`arcBurnTxHash` (see state.ts's PendingBridge)
+ * before calling `mintOnArbitrum` -- if the process dies during the
+ * multi-minute attestation wait in step 2, that persisted record is the
+ * only way a restart finishes the mint instead of leaving funds burned on
+ * Arc but never credited on Arbitrum.
  */
-export async function bridgeArcToArbitrum(account: Account, amountRaw6: bigint): Promise<{ mintTxHash: Hex } | { dryRun: true }> {
+export async function burnOnArc(account: Account, amountRaw6: bigint): Promise<BurnResult | { dryRun: true }> {
   if (config.dryRun) {
-    console.log(
-      `[keeper] DRY_RUN: would bridge ${amountRaw6} raw USDC (Arc -> Arbitrum) for ${account.address} via CCTP`
-    );
+    console.log(`[keeper] DRY_RUN: would burn ${amountRaw6} raw USDC on Arc for ${account.address} via CCTP`);
     return { dryRun: true };
   }
 
@@ -117,15 +124,25 @@ export async function bridgeArcToArbitrum(account: Account, amountRaw6: bigint):
 
   const messageLog = burnReceipt.logs.find((log) => {
     try {
-      return log.topics[0] === messageSentEvent.hash;
+      return log.topics[0] === MESSAGE_SENT_TOPIC;
     } catch {
       return false;
     }
   });
   if (!messageLog) throw new Error(`No MessageSent event found in depositForBurn receipt ${burnHash}`);
-  const message = messageLog.data as Hex;
 
-  const attestation = await fetchAttestation(config.cctpArcDomain, burnHash);
+  return { arcBurnTxHash: burnHash, message: messageLog.data as Hex };
+}
+
+/**
+ * Step 2/2: waits for Circle's attestation and submits the mint on
+ * Arbitrum. Safe to call again for the same `message` after a crash --
+ * CCTP tracks used nonces and a second receiveMessage for an
+ * already-processed message simply reverts, which is the recovery path
+ * this is designed around (retry, don't re-burn).
+ */
+export async function mintOnArbitrum(account: Account, arcBurnTxHash: Hex, message: Hex): Promise<Hex> {
+  const attestation = await fetchAttestation(config.cctpArcDomain, arcBurnTxHash);
 
   await ensureArbitrumGas(account.address);
   const arbitrumWallet = createWalletClient({ account, chain: arbitrum, transport: http(config.arbitrumRpcUrl) });
@@ -136,8 +153,7 @@ export async function bridgeArcToArbitrum(account: Account, amountRaw6: bigint):
     args: [message, attestation],
   });
   await arbitrumPublicClient.waitForTransactionReceipt({ hash: mintHash, confirmations: config.confirmations });
-
-  return { mintTxHash: mintHash };
+  return mintHash;
 }
 
 /** Polls Circle's Iris API until the attestation for this burn tx is ready. */

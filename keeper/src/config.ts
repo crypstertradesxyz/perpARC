@@ -37,6 +37,13 @@ export const config = {
   // DIFFERENT address than the one already handed out to a token's team,
   // watching (and later funding) the wrong wallet entirely.
   pairingDerivationSecret: requireEnv("PAIRING_DERIVATION_SECRET") as Hex,
+  // Resolved relative to process.cwd() (see pairingRegistry.ts), which for
+  // both `npm run dev` and `npm start` is keeper/ itself regardless of
+  // whether the running file is src/ (tsx) or dist/ (built) -- resolving
+  // against import.meta.url instead would silently break on build, since
+  // dist/ and src/ sit at different depths. Verified live below, not just
+  // reasoned about: an early draft using __dirname at two-up-from-src
+  // silently found "no pairings" once run against dist/.
   pairingsFilePath: optionalEnv("PAIRINGS_FILE_PATH", "../site/data/pairings.json"),
 
   // --- Keeper operational wallet ---
@@ -70,6 +77,13 @@ export const config = {
   arbitrumUsdcAddress: optionalEnv(
     "ARBITRUM_USDC_ADDRESS",
     "0xaf88d065e77c8cC2239327C5EDb3A432268e5831" // native USDC on Arbitrum One
+  ) as Hex,
+
+  // --- Argus (best-effort fee claiming -- see argus.ts header for the
+  // real constraint on how much this can actually automate) ---
+  argusPortalAddress: optionalEnv(
+    "ARGUS_PORTAL_ADDRESS",
+    "0xB021Be536808f551b31789422Fd28a6c9c6e97Da"
   ) as Hex,
 
   // --- Fee split & thresholds (see SPEC.md "Fee split") ---
