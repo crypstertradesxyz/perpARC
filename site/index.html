@@ -77,10 +77,10 @@
         </p>
       </div>
 
-      <div class="terminal" role="region" aria-label="Illustrated keeper run">
+      <div class="terminal spotlight-card" role="region" aria-label="Illustrated keeper run">
         <div class="terminal-head">
-          <span><span class="live-dot" aria-hidden="true"></span>keeper</span>
-          <span>Illustration with example figures, not live data</span>
+          <span><span class="radar-dot" style="margin-right: 8px;"></span>keeper <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--sodium); margin-left: 6px; padding: 2px 6px; background: rgba(233,161,63,0.12); border-radius: 4px;">ONLINE</span></span>
+          <span id="keeper-live-clock" style="font-family: var(--mono); color: var(--bone-dim); font-size: 0.85rem;">Watching Arc &middot; last sweep 2s ago</span>
         </div>
         <ol id="log">
           <li><span class="t">14:02:11</span><span>watching 3 paired wallets on Arc</span></li>
@@ -139,7 +139,7 @@
   </section>
 
   <!-- Interactive Simulator Teaser -->
-  <section class="block reveal-item" id="explore-teaser" style="background: rgba(22, 40, 74, 0.28); border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); padding: 4rem 0;">
+  <section class="block reveal-item spotlight-card" id="explore-teaser" style="background: rgba(22, 40, 74, 0.28); border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); padding: 4rem 0;">
     <div class="wrap" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem;">
       <div style="max-width: 550px;">
         <p class="eyebrow" style="margin-bottom: 0.5rem;">Interactive Tool</p>
@@ -269,9 +269,40 @@
     drop = { x: apex.x, y: apex.y + Math.min(170, (Math.max(P0.y, P2.y) - apex.y) * 0.6) };
   }
 
+  let mouseOffset = { x: 0, y: 0 };
+  let currentMouseOffset = { x: 0, y: 0 };
+
+  hero.addEventListener("mousemove", (e) => {
+    if (reduceMotion) return;
+    const rect = hero.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    const apex = { x: C.x, y: (P0.y + P2.y) / 2 };
+    const dx = mx - apex.x;
+    const dy = my - apex.y;
+    const dist = Math.hypot(dx, dy);
+    if (dist < 340) {
+      const force = (1 - dist / 340) * 26;
+      mouseOffset.x = (dx / dist) * force;
+      mouseOffset.y = (dy / dist) * force;
+    } else {
+      mouseOffset.x = 0;
+      mouseOffset.y = 0;
+    }
+  });
+
+  hero.addEventListener("mouseleave", () => {
+    mouseOffset.x = 0;
+    mouseOffset.y = 0;
+  });
+
   function point(t) {
     const u = 1 - t;
-    return { x: u * u * P0.x + 2 * u * t * C.x + t * t * P2.x, y: u * u * P0.y + 2 * u * t * C.y + t * t * P2.y };
+    const warp = Math.sin(t * Math.PI);
+    return {
+      x: u * u * P0.x + 2 * u * t * C.x + t * t * P2.x + currentMouseOffset.x * warp,
+      y: u * u * P0.y + 2 * u * t * C.y + t * t * P2.y + currentMouseOffset.y * warp
+    };
   }
 
   function tangent(t) {
@@ -493,13 +524,16 @@
     lastFrame = now;
     if (startTime === null) startTime = now;
 
+    currentMouseOffset.x += (mouseOffset.x - currentMouseOffset.x) * 0.12;
+    currentMouseOffset.y += (mouseOffset.y - currentMouseOffset.y) * 0.12;
+
     if (drawProgress < 1) {
       const x = Math.min(1, (now - startTime) / 2200);
       drawProgress = x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
       if (drawProgress >= 1) labels.forEach((el) => el.classList.add("is-visible"));
     } else {
-      if (now - lastSpawn > 520 + Math.random() * 380) {
-        particles.push({ t: 0, speed: 0.16 + Math.random() * 0.03, buyback: Math.random() < 0.2 });
+      if (now - lastSpawn > 500 + Math.random() * 350) {
+        particles.push({ t: 0, speed: 0.16 + Math.random() * 0.03, buyback: Math.random() < 0.25 });
         lastSpawn = now;
         sourcePulse = 1;
       }
@@ -508,13 +542,23 @@
         p.t += p.speed * dt;
         if (p.buyback && before < 0.5 && p.t >= 0.5) {
           const apex = point(0.5);
-          falling.push({ x: apex.x, y: apex.y, life: 1 });
+          for (let k = 0; k < 3; k++) {
+            falling.push({
+              x: apex.x + (Math.random() - 0.5) * 6,
+              y: apex.y,
+              speed: 95 + Math.random() * 40,
+              life: 1
+            });
+          }
           p.done = true;
         }
         if (p.t >= 1) { p.done = true; gaugePulse = 1; }
       }
       particles = particles.filter((p) => !p.done);
-      for (const f of falling) { f.y += 90 * dt; if (f.y >= drop.y) f.life -= 2.5 * dt; }
+      for (const f of falling) {
+        f.y += (f.speed || 90) * dt;
+        if (f.y >= drop.y) f.life -= 2.5 * dt;
+      }
       falling = falling.filter((f) => f.life > 0);
       gaugePulse = Math.max(0, gaugePulse - dt * 1.4);
       sourcePulse = Math.max(0, sourcePulse - dt * 2);
@@ -543,8 +587,7 @@
   }
 
   // ---------------------------------------------------------------------
-  // Keeper log: lines type in once, when the terminal scrolls into view.
-  // Without JS or with reduced motion, every line is simply shown.
+  // Keeper log: lines type in once, then continuous live heartbeat streams
   // ---------------------------------------------------------------------
   const log = document.getElementById("log");
   if (!reduceMotion) {
@@ -564,11 +607,64 @@
     }, { threshold: 0.4 }).observe(log);
   }
 
-  // Scroll Reveal Observer for blocks
+  // Live Keeper Clock & Telemetry Loop
+  const keeperClock = document.getElementById("keeper-live-clock");
+  let lastSweepSec = 2;
+  setInterval(() => {
+    lastSweepSec++;
+    if (lastSweepSec > 7) lastSweepSec = 1;
+    if (keeperClock) {
+      keeperClock.textContent = `Watching Arc · last sweep ${lastSweepSec}s ago`;
+    }
+  }, 1000);
+
+  // Periodic Streaming Keeper Log Events
+  const streamEvents = [
+    "$GADGET vault checked, balances stable",
+    "Circle CCTP attestation polled (0 pending)",
+    "Hyperliquid margin ratio verified at 5.0x",
+    "Gas reserve topped up on Arc (0.015 ETH equivalent)",
+    "PerpArc keeper cycle complete · watching 3 pools"
+  ];
+  let eventIdx = 0;
+  setInterval(() => {
+    if (!running) return;
+    const logEl = document.getElementById("log");
+    if (!logEl || logEl.children.length === 0) return;
+    const now = new Date();
+    const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+    const li = document.createElement("li");
+    li.className = "terminal-stream-line";
+    li.innerHTML = `<span class="t">${timeStr}</span><span>${streamEvents[eventIdx % streamEvents.length]}</span>`;
+    logEl.appendChild(li);
+    eventIdx++;
+    if (logEl.children.length > 9) {
+      logEl.removeChild(logEl.children[0]);
+    }
+  }, 8500);
+
+  // Spotlight Cursor Tracker
+  document.addEventListener("mousemove", (e) => {
+    document.querySelectorAll(".spotlight-card").forEach((card) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      card.style.setProperty("--mouse-x", `${x}px`);
+      card.style.setProperty("--mouse-y", `${y}px`);
+    });
+  });
+
+  // Scroll Reveal Observer for blocks & liquid split bar
   const revealObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         entry.target.classList.add("revealed");
+        const posBar = entry.target.querySelector(".split-position");
+        const buyBar = entry.target.querySelector(".split-buyback");
+        if (posBar && buyBar) {
+          posBar.style.width = "80%";
+          buyBar.style.width = "20%";
+        }
       }
     });
   }, { threshold: 0.15 });

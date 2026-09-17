@@ -38,7 +38,7 @@
 
   <!-- Section: Interactive Simulator -->
   <div class="sim-grid">
-    <div class="sim-controls drop-in drop-d3">
+    <div class="sim-controls drop-in drop-d3 spotlight-card">
       <div style="font-size: 1.25rem; font-weight: 500; margin-bottom: 0.25rem; color: var(--bone);">
         Simulation Parameters
       </div>
@@ -107,7 +107,7 @@
 
     <!-- Live Reactive Simulator Output -->
     <div class="sim-display drop-in drop-d4">
-      <div class="sim-card">
+      <div class="sim-card spotlight-card">
         <span class="eyebrow" style="margin-bottom: 0.5rem; display: inline-block;">Projected Perpetual Exposure</span>
         <div style="font-family: var(--mono); font-size: clamp(2.4rem, 4vw, 3.4rem); font-weight: 600; color: var(--sand); line-height: 1.1; margin: 0.4rem 0 0.8rem;" id="out-total-exposure">
           $120,000
@@ -136,7 +136,7 @@
         </div>
       </div>
 
-      <div class="sim-card">
+      <div class="sim-card spotlight-card">
         <div style="font-size: 1.05rem; font-weight: 500; color: var(--bone); margin-bottom: 0.6rem;">
           The Autonomous Flow Breakdown
         </div>
@@ -212,6 +212,51 @@
     return "$" + Math.round(num).toLocaleString();
   }
 
+  // Smooth Numerical Interpolation State
+  const currentVals = {
+    exposure: 120000,
+    fees: 30000,
+    margin: 24000,
+    buyback: 6000,
+    gain: 12000
+  };
+  let targetVals = { ...currentVals };
+  let animId = null;
+
+  function updateSliderTracks() {
+    const volPct = ((vol - 5000) / (1000000 - 5000)) * 100;
+    volSlider.style.setProperty("--fill-pct", `${volPct}%`);
+    const feePctVal = ((feeSlider.value - 0.25) / (3.0 - 0.25)) * 100;
+    feeSlider.style.setProperty("--fill-pct", `${feePctVal}%`);
+    const levPctVal = ((lev - 1) / (50 - 1)) * 100;
+    levSlider.style.setProperty("--fill-pct", `${levPctVal}%`);
+  }
+
+  function tickNumbers() {
+    let changed = false;
+    for (const k of Object.keys(targetVals)) {
+      const diff = targetVals[k] - currentVals[k];
+      if (Math.abs(diff) > 1) {
+        currentVals[k] += diff * 0.22;
+        changed = true;
+      } else {
+        currentVals[k] = targetVals[k];
+      }
+    }
+
+    outTotalExposure.textContent = fmt(currentVals.exposure);
+    outFeesCollected.textContent = fmt(currentVals.fees);
+    outMarginCapital.textContent = fmt(currentVals.margin);
+    outBuybackPower.textContent = fmt(currentVals.buyback);
+    outMarketGain.textContent = "+" + fmt(currentVals.gain);
+
+    if (changed) {
+      animId = requestAnimationFrame(tickNumbers);
+    } else {
+      animId = null;
+    }
+  }
+
   function recalculate() {
     const totalVolume = vol * days;
     const totalFees = totalVolume * feePct;
@@ -220,11 +265,18 @@
     const totalExposure = marginCapital * lev;
     const pnl10Pct = totalExposure * 0.1;
 
-    outTotalExposure.textContent = fmt(totalExposure);
-    outFeesCollected.textContent = fmt(totalFees);
-    outMarginCapital.textContent = fmt(marginCapital);
-    outBuybackPower.textContent = fmt(buybackAmount);
-    outMarketGain.textContent = "+" + fmt(pnl10Pct);
+    targetVals = {
+      exposure: totalExposure,
+      fees: totalFees,
+      margin: marginCapital,
+      buyback: buybackAmount,
+      gain: pnl10Pct
+    };
+
+    updateSliderTracks();
+    if (!animId) {
+      animId = requestAnimationFrame(tickNumbers);
+    }
   }
 
   volSlider.addEventListener("input", () => {
@@ -269,7 +321,7 @@
       }
 
       container.innerHTML = list.map(item => `
-        <div class="pairing-item">
+        <div class="pairing-item spotlight-card">
           <div class="pairing-head">
             <div class="pairing-token">
               <span class="token-badge-icon" style="width:28px; height:28px; font-size:0.75rem;">$</span>
@@ -305,6 +357,17 @@
   }
 
   loadPairings();
+
+  // Spotlight Cursor Tracker
+  document.addEventListener("mousemove", (e) => {
+    document.querySelectorAll(".spotlight-card").forEach((card) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      card.style.setProperty("--mouse-x", `${x}px`);
+      card.style.setProperty("--mouse-y", `${y}px`);
+    });
+  });
 
   // Scroll Reveal Observer
   const observer = new IntersectionObserver((entries) => {

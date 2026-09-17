@@ -36,18 +36,18 @@
     </p>
   </section>
 
-  <div class="wizard-card drop-in drop-d4">
+  <div class="wizard-card drop-in drop-d4 spotlight-card">
     <div class="wizard-progress">
       <button class="progress-step active" id="prog-1" type="button">
         <span class="step-num">1</span>
         <span>Token Contract</span>
       </button>
-      <div class="progress-line"></div>
+      <div class="progress-line" id="line-1"></div>
       <button class="progress-step" id="prog-2" type="button">
         <span class="step-num">2</span>
         <span>Market &amp; Leverage</span>
       </button>
-      <div class="progress-line"></div>
+      <div class="progress-line" id="line-2"></div>
       <button class="progress-step" id="prog-3" type="button">
         <span class="step-num">3</span>
         <span>Deposit Address</span>
@@ -66,14 +66,16 @@
           <div class="form-group">
             <label for="token-address">Arc Token Contract Address</label>
             <span class="label-desc">We query Arc RPC live to resolve symbol and decimals.</span>
-            <input 
-              type="text" 
-              id="token-address" 
-              class="input-field" 
-              placeholder="0x92bc59b005ea6a57e804af8233b8a2b2704d19d8" 
-              spellcheck="false"
-              autocomplete="off"
-            />
+            <div class="input-container" id="token-input-container">
+              <input 
+                type="text" 
+                id="token-address" 
+                class="input-field" 
+                placeholder="0x92bc59b005ea6a57e804af8233b8a2b2704d19d8" 
+                spellcheck="false"
+                autocomplete="off"
+              />
+            </div>
             
             <div id="token-preview" class="token-preview" style="display: none;">
               <div class="token-id">
@@ -285,6 +287,10 @@
   const summaryPosTag = document.getElementById("summary-pos-tag");
   const btnPairAnother = document.getElementById("btn-pair-another");
 
+  const line1 = document.getElementById("line-1");
+  const line2 = document.getElementById("line-2");
+  const inputContainer = document.getElementById("token-input-container");
+
   function goToStep(step) {
     currentStep = step;
     const offset = -(step - 1) * (100 / 3);
@@ -300,9 +306,17 @@
         p.classList.add("completed");
       }
     });
+
+    // Update progress connection lines
+    if (line1 && line2) {
+      if (step >= 2) line1.classList.add("filled");
+      else line1.classList.remove("filled");
+      if (step === 3) line2.classList.add("filled");
+      else line2.classList.remove("filled");
+    }
   }
 
-  // Token address lookup with debounce
+  // Token address lookup with debounce & radar scanner
   let lookupTimer = null;
   tokenInput.addEventListener("input", () => {
     clearTimeout(lookupTimer);
@@ -311,6 +325,7 @@
 
     if (!/^0x[a-fA-F0-9]{40}$/.test(addr)) {
       previewBox.style.display = "none";
+      if (inputContainer) inputContainer.classList.remove("input-scanning");
       btnToStep2.disabled = true;
       if (addr.length > 5) {
         tokenError.textContent = "Please enter a valid 42-character 0x address.";
@@ -318,6 +333,8 @@
       }
       return;
     }
+
+    if (inputContainer) inputContainer.classList.add("input-scanning");
 
     lookupTimer = setTimeout(async () => {
       badgeSymbol.textContent = "…";
@@ -328,6 +345,8 @@
       try {
         const res = await fetch(`/api/token?address=${encodeURIComponent(addr)}`);
         const data = await res.json();
+        if (inputContainer) inputContainer.classList.remove("input-scanning");
+
         if (data.found) {
           tokenInfo.address = addr;
           tokenInfo.symbol = data.symbol || "";
@@ -344,7 +363,6 @@
           }
           btnToStep2.disabled = false;
         } else {
-          // Token not found yet (might be pre-deployment address)
           tokenInfo.address = addr;
           badgeSymbol.textContent = (symbolInput.value || "?").slice(0, 4);
           badgeName.textContent = symbolInput.value ? `${symbolInput.value} (Pre-launch)` : "Pre-launch Address";
@@ -353,6 +371,7 @@
           btnToStep2.disabled = !symbolInput.value.trim();
         }
       } catch (err) {
+        if (inputContainer) inputContainer.classList.remove("input-scanning");
         tokenInfo.address = addr;
         btnToStep2.disabled = !symbolInput.value.trim();
       }
@@ -401,9 +420,44 @@
     meterMult.textContent = `${selectedLeverage}.0x Notional`;
     const dist = (90 / selectedLeverage).toFixed(1);
     meterLiq.textContent = selectedDir === "long" ? `-${dist}%` : `+${dist}%`;
+
+    // Dynamic Heatmap Risk Warning Color
+    if (selectedLeverage <= 10) {
+      meterLiq.style.color = "var(--cobalt)";
+    } else if (selectedLeverage <= 25) {
+      meterLiq.style.color = "var(--sodium)";
+    } else {
+      meterLiq.style.color = "var(--rose)";
+    }
+
+    const pct = ((selectedLeverage - 1) / (50 - 1)) * 100;
+    leverageSlider.style.setProperty("--fill-pct", `${pct}%`);
   }
 
   btnBackTo1.addEventListener("click", () => goToStep(1));
+
+  // Cryptographic Address Scramble Reveal
+  function scrambleRevealAddress(targetAddr) {
+    const chars = "0123456789abcdefABCDEF";
+    let progress = 0;
+    const len = targetAddr.length;
+    const interval = setInterval(() => {
+      let out = "";
+      for (let i = 0; i < len; i++) {
+        if (i < progress) {
+          out += targetAddr[i];
+        } else {
+          out += chars[Math.floor(Math.random() * chars.length)];
+        }
+      }
+      resultAddress.textContent = out;
+      progress += 2;
+      if (progress >= len) {
+        clearInterval(interval);
+        resultAddress.textContent = targetAddr;
+      }
+    }, 18);
+  }
 
   // Generate wallet
   btnGenerateWallet.addEventListener("click", async () => {
@@ -428,9 +482,9 @@
 
       const data = await res.json();
       if (res.ok && data.depositAddress) {
-        resultAddress.textContent = data.depositAddress;
         summaryPosTag.textContent = `${selectedAsset} ${selectedDir.toUpperCase()} ${selectedLeverage}x`;
         goToStep(3);
+        scrambleRevealAddress(data.depositAddress);
       } else {
         alert(data.errors ? data.errors.join("\n") : "Failed to derive wallet.");
       }
@@ -442,13 +496,13 @@
     }
   });
 
-  // Copy address
+  // Copy address with animated checkmark
   btnCopyAddress.addEventListener("click", async () => {
     const text = resultAddress.textContent;
     try {
       await navigator.clipboard.writeText(text);
       copyStatus.style.display = "block";
-      btnCopyAddress.textContent = "Copied!";
+      btnCopyAddress.textContent = "✓ Copied!";
       setTimeout(() => {
         btnCopyAddress.textContent = "Copy Address";
         copyStatus.style.display = "none";
@@ -464,6 +518,17 @@
     previewBox.style.display = "none";
     btnToStep2.disabled = true;
     goToStep(1);
+  });
+
+  // Spotlight Cursor Tracker
+  document.addEventListener("mousemove", (e) => {
+    document.querySelectorAll(".spotlight-card").forEach((card) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      card.style.setProperty("--mouse-x", `${x}px`);
+      card.style.setProperty("--mouse-y", `${y}px`);
+    });
   });
 
   // Step tabs clickability
