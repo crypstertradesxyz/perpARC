@@ -59,6 +59,16 @@ const portalAbi = [
 const revenueSplitterAbi = [
   {
     type: "function",
+    name: "distribute",
+    stateMutability: "nonpayable",
+    inputs: [],
+    outputs: [
+      { name: "amount0", type: "uint256" },
+      { name: "amount1", type: "uint256" },
+    ],
+  },
+  {
+    type: "function",
     name: "claim",
     stateMutability: "nonpayable",
     inputs: [{ name: "account", type: "address" }],
@@ -81,9 +91,10 @@ export type ClaimAttemptResult =
   | { outcome: "dry-run" };
 
 /**
- * Reads the token's Argus launch record and attempts RevenueSplitter.claim(account.address).
+ * Reads the token's Argus launch record and attempts RevenueSplitter.distribute() + claim(account.address).
  * Verified on Arc mainnet (2026-09-17 against live Portal 0xB021Be536808f551b31789422Fd28a6c9c6e97Da):
- * - Selector is `0x1e83409a` -> `claim(address account)`
+ * - Step 1: `distribute()` sweeps raw pool fees into allocated reward balances.
+ * - Step 2: `claim(address account)` transfers accrued fees to the creator.
  * - Reverts with `0x969bf728` (`NothingToClaim()`) if no fees have accrued.
  */
 export async function tryClaimArgusFees(account: Account, tokenAddress: Address): Promise<ClaimAttemptResult> {
@@ -113,12 +124,25 @@ export async function tryClaimArgusFees(account: Account, tokenAddress: Address)
   }
 
   if (config.dryRun) {
-    console.log(`[keeper] DRY_RUN: would call Argus RevenueSplitter.claim(${account.address}) for ${tokenAddress}`);
+    console.log(`[keeper] DRY_RUN: would call Argus RevenueSplitter distribute() & claim(${account.address}) for ${tokenAddress}`);
     return { outcome: "dry-run" };
   }
 
   const walletClient = createWalletClient({ account, chain: arc, transport: http(config.arcRpcUrl) });
   try {
+    // Step 1: Call distribute() to sweep accumulated swap fees from the Uniswap v4 pool
+    try {
+      const distHash = await walletClient.writeContract({
+        address: splitter,
+        abi: revenueSplitterAbi,
+        functionName: "distribute",
+      });
+      await arcPublicClient.waitForTransactionReceipt({ hash: distHash, confirmations: 1 });
+    } catch {
+      // distribute() may revert or do nothing if already distributed recently
+    }
+
+    // Step 2: Claim accrued rewards to this account
     const hash = await walletClient.writeContract({
       address: splitter,
       abi: revenueSplitterAbi,
