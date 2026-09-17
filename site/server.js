@@ -14,7 +14,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { randomBytes } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { encodePacked, isAddress, keccak256 } from "viem";
+import { createPublicClient, defineChain, encodePacked, isAddress, keccak256, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -22,6 +22,40 @@ const PORT = process.env.PORT || 8090;
 const SECRET_FILE = path.join(__dirname, ".dev-secret");
 const PAIRINGS_FILE = path.join(__dirname, "data", "pairings.json");
 const MAX_LEVERAGE = 50;
+
+// --- Arc RPC (for looking up a token's own name/symbol/decimals) --------
+//
+// rpc.arc-scan.org is a third-party public endpoint, not Circle's own --
+// Circle's rpc.mainnet.arc.io is IP-allowlisted as of 2026-09-17 (confirmed
+// live against both). Override via ARC_RPC_URL for a dedicated/allowlisted
+// endpoint once one is available.
+const ARC_RPC_URL = process.env.ARC_RPC_URL || "https://rpc.arc-scan.org";
+const arcChain = defineChain({
+  id: 5042,
+  name: "Arc",
+  nativeCurrency: { name: "USDC", symbol: "USDC", decimals: 6 },
+  rpcUrls: { default: { http: [ARC_RPC_URL] } },
+});
+const arcClient = createPublicClient({ chain: arcChain, transport: http(ARC_RPC_URL) });
+
+const erc20Abi = [
+  { type: "function", name: "name", stateMutability: "view", inputs: [], outputs: [{ type: "string" }] },
+  { type: "function", name: "symbol", stateMutability: "view", inputs: [], outputs: [{ type: "string" }] },
+  { type: "function", name: "decimals", stateMutability: "view", inputs: [], outputs: [{ type: "uint8" }] },
+];
+
+/** Best-effort ERC20 metadata lookup -- a token missing one field (rare but
+ * not disallowed by the standard) shouldn't fail the whole lookup. */
+async function lookupToken(address) {
+  const call = (functionName) =>
+    arcClient.readContract({ address, abi: erc20Abi, functionName }).catch(() => null);
+  const [name, symbol, rawDecimals] = await Promise.all([call("name"), call("symbol"), call("decimals")]);
+  if (name === null && symbol === null && rawDecimals === null) return null; // not a contract, or not ERC20
+  // viem decodes every uintN/intN as bigint regardless of width, including
+  // uint8 -- JSON.stringify can't serialize that, so normalize here.
+  const decimals = rawDecimals === null ? null : Number(rawDecimals);
+  return { name, symbol, decimals };
+}
 
 // --- Derivation secret --------------------------------------------------
 //
@@ -135,6 +169,27 @@ async function handlePair(req, res) {
   res.end(JSON.stringify({ depositAddress, alreadyPaired, pairing: record }));
 }
 
+async function handleTokenLookup(req, res) {
+  const url = new URL(req.url, "http://localhost");
+  const address = (url.searchParams.get("address") || "").trim();
+
+  if (!isAddress(address)) {
+    res.writeHead(400, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ found: false, error: "Not a valid address" }));
+    return;
+  }
+
+  const token = await lookupToken(address);
+  if (!token) {
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ found: false }));
+    return;
+  }
+
+  res.writeHead(200, { "Content-Type": "application/json" });
+  res.end(JSON.stringify({ found: true, address, ...token }));
+}
+
 async function handleListPairings(res) {
   const pairings = await loadPairings();
   res.writeHead(200, { "Content-Type": "application/json" });
@@ -197,6 +252,14 @@ const server = createServer((req, res) => {
       console.error("[arcperp-site] /api/pair failed", err);
       res.writeHead(500, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ errors: ["Internal error"] }));
+    });
+    return;
+  }
+  if (req.method === "GET" && req.url.startsWith("/api/token")) {
+    handleTokenLookup(req, res).catch((err) => {
+      console.error("[arcperp-site] /api/token failed", err);
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ found: false, error: "Internal error" }));
     });
     return;
   }

@@ -169,11 +169,13 @@
         <input type="text" id="token-address" name="tokenAddress" placeholder="0x..." pattern="^0x[a-fA-F0-9]{40}$" required />
         <span class="hint">The token you already launched on Argus, on Arc.</span>
         <span role="alert" id="token-address-error">Enter a valid Arc contract address (0x followed by 40 hex characters).</span>
+        <span class="hint" id="token-lookup-status"></span>
       </div>
 
       <div class="field">
         <label for="token-symbol">Token symbol</label>
         <input type="text" id="token-symbol" name="tokenSymbol" placeholder="e.g. WRENCH" required />
+        <span class="hint" id="token-symbol-hint">Fetched automatically once you enter a valid address above.</span>
       </div>
 
       <div class="field">
@@ -248,6 +250,8 @@
   const leverageValue = document.getElementById("leverage-value");
   const tokenAddressInput = document.getElementById("token-address");
   const tokenAddressError = document.getElementById("token-address-error");
+  const tokenSymbolInput = document.getElementById("token-symbol");
+  const tokenLookupStatus = document.getElementById("token-lookup-status");
   const confirmation = document.getElementById("confirmation");
   const confirmationHeading = document.getElementById("confirmation-heading");
   const confirmationIntro = document.getElementById("confirmation-intro");
@@ -261,8 +265,47 @@
     leverageValue.textContent = `${leverageInput.value}x`;
   });
 
+  // Auto-fetches name/symbol/decimals from Arc once a syntactically valid
+  // address is entered -- debounced so it doesn't fire on every keystroke,
+  // and abortable so a fast typist's earlier in-flight lookup can't land
+  // after a later one and overwrite it with stale data.
+  let lookupAbortController = null;
+  let lookupDebounceTimer = null;
+  let lastAutoFilledSymbol = null; // so we don't clobber a manual edit
+
+  async function fetchTokenInfo(address) {
+    if (lookupAbortController) lookupAbortController.abort();
+    lookupAbortController = new AbortController();
+    tokenLookupStatus.textContent = "Looking up token...";
+
+    try {
+      const res = await fetch(`/api/token?address=${address}`, { signal: lookupAbortController.signal });
+      const result = await res.json();
+
+      if (!result.found) {
+        tokenLookupStatus.textContent = "Couldn't find this token on Arc — enter its symbol manually.";
+        return;
+      }
+      if (result.symbol && (!tokenSymbolInput.value || tokenSymbolInput.value === lastAutoFilledSymbol)) {
+        tokenSymbolInput.value = result.symbol;
+        lastAutoFilledSymbol = result.symbol;
+      }
+      tokenLookupStatus.textContent = result.name
+        ? `Found: ${result.symbol ?? "?"} — ${result.name}`
+        : `Found: ${result.symbol ?? "this token"} (no name set on-chain)`;
+    } catch (err) {
+      if (err.name === "AbortError") return;
+      tokenLookupStatus.textContent = "Couldn't reach Arc to look up this token — enter its symbol manually.";
+    }
+  }
+
   tokenAddressInput.addEventListener("input", () => {
     tokenAddressError.style.display = "none";
+    tokenLookupStatus.textContent = "";
+    clearTimeout(lookupDebounceTimer);
+    if (!tokenAddressInput.checkValidity()) return;
+    const address = tokenAddressInput.value;
+    lookupDebounceTimer = setTimeout(() => fetchTokenInfo(address), 450);
   });
 
   copyButton.addEventListener("click", async () => {

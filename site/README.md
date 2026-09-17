@@ -12,6 +12,18 @@ npm start
 # http://127.0.0.1:8090
 ```
 
+## Token lookup
+
+`GET /api/token?address=0x...` reads `name()`/`symbol()`/`decimals()` off
+Arc directly (via `ARC_RPC_URL`, defaulting to the public
+`https://rpc.arc-scan.org` -- Circle's own `rpc.mainnet.arc.io` is
+IP-allowlisted as of 2026-09-17). `pair.html` calls this automatically,
+debounced, once a syntactically valid address is entered, and pre-fills
+the token symbol field. Each of the three calls is independently
+try/caught, so a token missing one field degrades gracefully instead of
+failing the whole lookup; an address with no code at all, or that isn't
+ERC20, returns `{found: false}` rather than an error.
+
 ## How pairing works
 
 `POST /api/pair` takes `{tokenAddress, tokenSymbol, asset, direction, leverage, contact?}`,
