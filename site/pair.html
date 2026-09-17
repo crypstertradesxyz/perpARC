@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pair a token — ArcPerp</title>
+<meta name="description" content="Request a pairing: fund a leveraged Hyperliquid position from your Argus token's own trading fees." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  /* Page-specific: the pairing form. Shared tokens/layout live in style.css. */
+
+  .pair-hero { padding: 3rem 0 1rem; }
+  .pair-hero h1 { font-size: clamp(1.9rem, 3.6vw, 2.6rem); letter-spacing: -0.01em; margin: 0 0 0.9rem; max-width: 22ch; }
+  .pair-hero p { color: var(--ink-soft); font-size: 1.05rem; max-width: 38rem; }
+
+  .pair-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    padding: 1rem 0 4rem;
+    align-items: start;
+  }
+
+  @media (max-width: 800px) {
+    .pair-layout { grid-template-columns: 1fr; gap: 2rem; }
+  }
+
+  form.pair-form {
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 1.75rem;
+  }
+
+  .field { margin-bottom: 1.3rem; }
+  .field:last-of-type { margin-bottom: 0; }
+
+  .field label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+  }
+
+  .field .hint {
+    display: block;
+    font-weight: 400;
+    color: var(--ink-soft);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+  }
+
+  .field input[type="text"],
+  .field input[type="email"],
+  .field input[type="number"],
+  .field select {
+    width: 100%;
+    font: inherit;
+    font-size: 0.98rem;
+    padding: 0.6rem 0.7rem;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--paper);
+    color: var(--ink);
+  }
+
+  .field input:focus, .field select:focus {
+    outline: 2px solid var(--blue);
+    outline-offset: 1px;
+  }
+
+  .radio-row { display: flex; gap: 1.5rem; }
+  .radio-row label { display: flex; align-items: center; gap: 0.5rem; font-weight: 400; font-size: 0.98rem; }
+  .radio-row input { width: auto; }
+
+  .leverage-row { display: flex; align-items: center; gap: 0.8rem; }
+  .leverage-row input[type="range"] { flex: 1; }
+  .leverage-value { font-weight: 600; min-width: 3.2rem; text-align: right; }
+
+  .submit-row {
+    margin-top: 1.6rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .submit-row button {
+    font: inherit;
+    font-weight: 600;
+    font-size: 0.98rem;
+    padding: 0.75rem 1.4rem;
+    border-radius: 8px;
+    border: none;
+    background: var(--blue);
+    color: white;
+    cursor: pointer;
+  }
+  .submit-row button:hover { background: var(--blue-deep); }
+
+  .submit-row .required-note { font-size: 0.85rem; color: var(--ink-soft); }
+
+  .side-note {
+    background: #f2f4f7;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem;
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+  }
+
+  .side-note h2 { font-size: 1.1rem; color: var(--ink); margin: 0 0 0.8rem; }
+  .side-note ul { margin: 0 0 1.2rem; padding-left: 1.1rem; }
+  .side-note li { margin-bottom: 0.6rem; }
+  .side-note li:last-child { margin-bottom: 0; }
+  .side-note p:last-child { margin-bottom: 0; }
+
+  #confirmation {
+    display: none;
+    background: #eaf6ee;
+    border: 1px solid #b9dcc4;
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem;
+    margin-top: 1.5rem;
+  }
+  #confirmation h2 { margin: 0 0 0.6rem; font-size: 1.1rem; color: #235c37; }
+  #confirmation p { margin: 0 0 0.9rem; color: var(--ink-soft); }
+  #confirmation p:last-child { margin-bottom: 0; }
+  #confirmation a { font-weight: 600; }
+
+  [role="alert"] {
+    color: var(--rose);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div class="wordmark"><a href="index.html" style="color:inherit; text-decoration:none;">Arc<span>Perp</span></a></div>
+    <nav>
+      <a href="index.html#how">How it works</a>
+      <a href="index.html#split">The split</a>
+      <a href="index.html#risk">Risk</a>
+      <a href="pair.html" class="nav-cta">Pair a token</a>
+    </nav>
+  </header>
+</div>
+
+<div class="wrap">
+  <section class="pair-hero">
+    <h1>Pair a token</h1>
+    <p>
+      Tell us your token and the position you want. Your ArcPerp deposit wallet is generated instantly &mdash;
+      redirect this token's claimed Argus fees to it, and ArcPerp takes it from there.
+    </p>
+  </section>
+
+  <div class="pair-layout">
+    <form class="pair-form" id="pair-form" novalidate>
+      <div class="field">
+        <label for="token-address">Your token's contract address</label>
+        <input type="text" id="token-address" name="tokenAddress" placeholder="0x..." pattern="^0x[a-fA-F0-9]{40}$" required />
+        <span class="hint">The token you already launched on Argus, on Arc.</span>
+        <span role="alert" id="token-address-error">Enter a valid Arc contract address (0x followed by 40 hex characters).</span>
+      </div>
+
+      <div class="field">
+        <label for="token-symbol">Token symbol</label>
+        <input type="text" id="token-symbol" name="tokenSymbol" placeholder="e.g. WRENCH" required />
+      </div>
+
+      <div class="field">
+        <label for="asset">Hyperliquid asset</label>
+        <input type="text" id="asset" name="asset" list="asset-options" placeholder="e.g. BTC" required />
+        <datalist id="asset-options">
+          <option value="BTC"></option>
+          <option value="ETH"></option>
+          <option value="SOL"></option>
+          <option value="HYPE"></option>
+          <option value="ARB"></option>
+        </datalist>
+        <span class="hint">Any live Hyperliquid perp.</span>
+      </div>
+
+      <div class="field">
+        <label>Direction</label>
+        <div class="radio-row">
+          <label><input type="radio" name="direction" value="long" checked /> Long</label>
+          <label><input type="radio" name="direction" value="short" /> Short</label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="leverage">Leverage</label>
+        <div class="leverage-row">
+          <input type="range" id="leverage" name="leverage" min="1" max="50" value="5" />
+          <span class="leverage-value" id="leverage-value">5x</span>
+        </div>
+        <span class="hint">Fixed for the token's life once pairing is confirmed.</span>
+      </div>
+
+      <div class="field">
+        <label for="contact">Contact <span style="font-weight:400; color:var(--ink-soft)">(optional)</span></label>
+        <input type="text" id="contact" name="contact" placeholder="Email, Telegram, or X handle" />
+        <span class="hint">Only needed if something about your pairing needs follow-up.</span>
+      </div>
+
+      <div class="submit-row">
+        <button type="submit">Generate my ArcPerp wallet</button>
+        <span class="required-note" id="submit-status"></span>
+      </div>
+
+      <div id="confirmation">
+        <h2 id="confirmation-heading">Your ArcPerp wallet</h2>
+        <p id="confirmation-intro">Redirect this token's claimed Argus fees here. ArcPerp watches it and funds the position once a balance builds up.</p>
+        <p id="confirmation-address" style="font-family: ui-monospace, monospace; font-size: 1.05rem; color: var(--ink); word-break: break-all; background: white; border: 1px solid var(--line); border-radius: 6px; padding: 0.7rem 0.9rem;"></p>
+        <button type="button" id="copy-address" style="margin-top:0.8rem; font: inherit; font-size:0.9rem; padding:0.5rem 1rem; border-radius:6px; border:1px solid var(--line); background:white; cursor:pointer;">Copy address</button>
+        <p id="confirmation-summary" style="color: var(--ink-soft); font-size: 0.9rem; white-space: pre-line; margin-top: 1rem;"></p>
+      </div>
+    </form>
+
+    <aside class="side-note">
+      <h2>Before you request</h2>
+      <ul>
+        <li>Your token needs to already be trading on Argus, on Arc &mdash; ArcPerp doesn't launch it for you.</li>
+        <li>Asset, direction, and leverage are fixed once pairing is confirmed. Choose deliberately.</li>
+        <li>You keep claiming your own Argus fees yourself; pairing only tells you where to redirect them.</li>
+        <li>The address is generated instantly and deterministically from your token's address &mdash; requesting again for the same token returns the same address.</li>
+      </ul>
+      <p>
+        <strong>Custody:</strong> this address is controlled by ArcPerp's keeper, not by you. Treat it like any
+        custodial deposit address until your position is live.
+      </p>
+    </aside>
+  </div>
+</div>
+
+<script>
+  const form = document.getElementById("pair-form");
+  const leverageInput = document.getElementById("leverage");
+  const leverageValue = document.getElementById("leverage-value");
+  const tokenAddressInput = document.getElementById("token-address");
+  const tokenAddressError = document.getElementById("token-address-error");
+  const confirmation = document.getElementById("confirmation");
+  const confirmationHeading = document.getElementById("confirmation-heading");
+  const confirmationIntro = document.getElementById("confirmation-intro");
+  const confirmationAddress = document.getElementById("confirmation-address");
+  const confirmationSummary = document.getElementById("confirmation-summary");
+  const copyButton = document.getElementById("copy-address");
+  const submitButton = form.querySelector("button[type=submit]");
+  const submitStatus = document.getElementById("submit-status");
+
+  leverageInput.addEventListener("input", () => {
+    leverageValue.textContent = `${leverageInput.value}x`;
+  });
+
+  tokenAddressInput.addEventListener("input", () => {
+    tokenAddressError.style.display = "none";
+  });
+
+  copyButton.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(confirmationAddress.textContent.trim());
+      copyButton.textContent = "Copied";
+      setTimeout(() => (copyButton.textContent = "Copy address"), 1500);
+    } catch {
+      // Clipboard API can be unavailable (e.g. insecure context); the
+      // address is already selectable text, so this is a soft failure.
+    }
+  });
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    confirmation.style.display = "none";
+    submitStatus.textContent = "";
+
+    if (!tokenAddressInput.checkValidity()) {
+      tokenAddressError.style.display = "block";
+      tokenAddressInput.focus();
+      return;
+    }
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
+    const data = Object.fromEntries(new FormData(form).entries());
+    submitButton.disabled = true;
+    submitStatus.textContent = "Generating...";
+
+    try {
+      const res = await fetch("/api/pair", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      const result = await res.json();
+
+      if (!res.ok) {
+        submitStatus.textContent = (result.errors || ["Something went wrong."]).join(" ");
+        return;
+      }
+
+      confirmationHeading.textContent = result.alreadyPaired ? "Your ArcPerp wallet (already generated)" : "Your ArcPerp wallet";
+      confirmationIntro.textContent = result.alreadyPaired
+        ? "This token was already paired. Here's the same deposit address again -- redirecting fees to it multiple times is harmless."
+        : "Redirect this token's claimed Argus fees here. ArcPerp watches it and funds the position once a balance builds up.";
+      confirmationAddress.textContent = result.depositAddress;
+      confirmationSummary.textContent =
+        `Token: ${data.tokenSymbol} (${data.tokenAddress})\n` +
+        `Position: ${data.direction} ${data.asset} at ${data.leverage}x`;
+      confirmation.style.display = "block";
+      submitStatus.textContent = "";
+      confirmation.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    } catch (err) {
+      submitStatus.textContent = "Couldn't reach the pairing service. Is the server running?";
+      console.error(err);
+    } finally {
+      submitButton.disabled = false;
+    }
+  });
+</script>
+
+</body>
+</html>

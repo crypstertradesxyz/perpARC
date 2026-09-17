@@ -1,0 +1,13 @@
+node_modules/
+out/
+cache/
+broadcast/
+.env
+.env.*
+!.env.example
+
+# site: dev-only derivation secret and stored pairings -- never commit
+# either (see site/server.js "Derivation secret" and site/README.md
+# "Custody model").
+site/.dev-secret
+site/data/
